@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CRYPTEX">
+<meta name="theme-color" content="#f0f4f8">
+<title>CRYPTEX Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Firebase removed -->
+<script>
+if(navigator.serviceWorker){
+  navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(sw){sw.unregister();});});
+  caches.keys().then(function(keys){keys.forEach(function(k){caches.delete(k);});});
+}
+</script>
+<style>
+:root{--bg:#06080d;--surface:#0c1018;--surface2:#111820;--border:#1a2232;--accent:#00e8a0;--red:#ff3d6e;--green:#00e8a0;--gold:#f5a623;--blue:#00b4d8;--text:#dde4f0;--muted:#4a5670;--muted2:#7a8aa8}
+body.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf4;--border:#d0d8e8;--accent:#00a572;--red:#e02050;--green:#00a572;--gold:#c47d00;--blue:#0088aa;--text:#0e1420;--muted:#7a8aa8;--muted2:#4a5670}
+body,body *{transition:background-color .25s,border-color .25s,color .15s,box-shadow .25s}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,232,160,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(0,232,160,.016) 1px,transparent 1px);background-size:42px 42px;pointer-events:none;z-index:0}
+body.light::before{background-image:linear-gradient(rgba(0,165,114,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,165,114,.06) 1px,transparent 1px)}
+body::after{content:'';position:fixed;top:-300px;right:-300px;width:700px;height:700px;background:radial-gradient(circle,rgba(0,232,160,.05) 0%,transparent 65%);pointer-events:none;z-index:0}
+body.light::after{background:radial-gradient(circle,rgba(0,165,114,.07) 0%,transparent 65%)}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle{background:transparent;border:1px solid var(--border);color:var(--muted2);font-size:1rem;width:34px;height:34px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+.wrap{max-width:1140px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+header{padding:24px 0 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:5px;color:var(--accent);text-shadow:0 0 40px rgba(0,232,160,.35)}
+.logo span{color:var(--text)}
+.logo-sub{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:3px;color:var(--muted);margin-top:2px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.live-pill{display:flex;align-items:center;gap:7px;background:rgba(0,232,160,.06);border:1px solid rgba(0,232,160,.18);padding:5px 13px;border-radius:20px;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--accent);letter-spacing:2px}
+.pulse{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
+.last-update{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted)}
+.hdr-btn{background:transparent;border:1px solid var(--border);color:var(--muted2);font-family:'Space Mono',monospace;font-size:.6rem;padding:6px 12px;border-radius:7px;cursor:pointer;transition:all .2s;letter-spacing:1px}
+.hdr-btn:hover{border-color:var(--accent);color:var(--accent)}
+.pro-badge{display:none;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(245,166,35,.08));border:1px solid rgba(245,166,35,.4);padding:5px 12px;border-radius:20px;font-family:'Space Mono',monospace;font-size:.6rem;color:var(--gold);letter-spacing:2px}
+.ticker-wrap{overflow:hidden;background:var(--surface);border-bottom:1px solid var(--border);padding:8px 0}
+.ticker{display:flex;animation:tickmove 40s linear infinite;white-space:nowrap;width:max-content}
+.ticker:hover{animation-play-state:paused}
+.t-item{font-family:'Space Mono',monospace;font-size:.68rem;padding:0 28px;color:var(--muted)}
+.t-item b{color:var(--text)}.t-item .up{color:var(--green)}.t-item .dn{color:var(--red)}
+@keyframes tickmove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.main{display:grid;grid-template-columns:1fr 320px;gap:20px;padding:22px 0 32px;align-items:start}
+@media(max-width:820px){.main{grid-template-columns:1fr}}
+.sec-label{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.market-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
+.tbl-head{display:grid;grid-template-columns:28px 1fr 120px 82px 72px;gap:8px;padding:0 8px 10px;font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)}
+.coin-rows{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.coin-row{display:grid;grid-template-columns:28px 1fr 120px 82px 72px;gap:8px;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 8px;transition:border-color .2s,background .2s;animation:rise .4s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.coin-row:hover{border-color:rgba(0,232,160,.35);background:rgba(0,232,160,.025)}
+.rank{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);text-align:center}
+.ci{display:flex;align-items:center;gap:9px;min-width:0}
+.coin-icon{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.58rem;font-weight:700}
+.cname{font-weight:500;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.csym{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--muted)}
+.price{font-family:'Space Mono',monospace;font-size:.8rem;text-align:right}
+.chg{font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;text-align:right;padding:3px 7px;border-radius:5px}
+.chg.up{background:rgba(0,232,160,.1);color:var(--green)}.chg.dn{background:rgba(255,61,110,.1);color:var(--red)}
+.mcap{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);text-align:right}
+.right-col{display:flex;flex-direction:column;gap:16px}
+.port-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
+.port-total-label{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
+.port-total{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--accent);letter-spacing:2px;text-shadow:0 0 28px rgba(0,232,160,.28);line-height:1.05}
+.port-change{font-family:'Space Mono',monospace;font-size:.7rem;margin-top:4px}
+.port-change.up{color:var(--green)}.port-change.dn{color:var(--red)}
+.port-items{display:flex;flex-direction:column;gap:7px;margin-top:14px}
+.port-item{display:flex;align-items:center;gap:9px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:9px 11px}
+.pi-icon{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.55rem;font-weight:700}
+.pi-name{font-size:.82rem;font-weight:500}.pi-amt{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted)}
+.pi-val{margin-left:auto;text-align:right}.pi-usd{font-family:'Space Mono',monospace;font-size:.78rem}
+.pi-pct{font-family:'Space Mono',monospace;font-size:.6rem}.pi-pct.up{color:var(--green)}.pi-pct.dn{color:var(--red)}
+.pi-rm{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:0 4px;transition:color .2s}
+.pi-rm:hover{color:var(--red)}
+.add-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.add-row select,.add-row input{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.65rem;padding:7px 9px;border-radius:7px;flex:1;min-width:60px;outline:none}
+.add-row select:focus,.add-row input:focus{border-color:var(--accent)}
+.add-btn{background:var(--accent);color:#000;border:none;font-family:'Space Mono',monospace;font-size:.65rem;font-weight:700;padding:7px 13px;border-radius:7px;cursor:pointer;transition:opacity .2s;letter-spacing:1px}
+.add-btn:hover{opacity:.85}
+.empty-msg{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);padding:10px 0}
+.loading-center{padding:30px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted)}
+.spinner-green{width:20px;height:20px;border:2px solid rgba(0,232,160,.15);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pro-section{display:none}
+.pro-blur{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;gap:12px;background:rgba(245,166,35,.03);border:1px dashed rgba(245,166,35,.2);border-radius:12px}
+.don-tab{background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:1px;padding:8px 14px;border-radius:8px;cursor:pointer;transition:all .2s}
+.don-tab.active{background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.3);color:#f5a623}
+.amt-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:'Space Mono',monospace;font-size:.65rem;padding:7px 13px;border-radius:7px;cursor:pointer;transition:all .2s;flex:1}
+.amt-btn.active{background:rgba(0,232,160,.1);border-color:rgba(0,232,160,.3);color:var(--accent)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:600px){
+  .wrap{padding:0 10px}
+  header{padding:12px 0 10px;gap:8px;flex-wrap:wrap}
+  .logo{font-size:1.55rem;letter-spacing:2px}
+  .logo-sub{font-size:.52rem;letter-spacing:2px}
+  .hdr-right{gap:5px;flex-wrap:wrap}
+  /* Hide less important header buttons on mobile — keep Refresh & PRO */
+  .hdr-btn.hide-mobile{display:none}
+  .hdr-btn{font-size:.52rem;padding:6px 10px;min-height:34px;touch-action:manipulation}
+  .live-pill{padding:4px 9px;font-size:.55rem}
+  .last-update{display:none}
+
+  /* Collapse 5-col table to 3-col on small screens: hide Mkt Cap */
+  .tbl-head{grid-template-columns:20px 1fr 88px 66px;font-size:.5rem;padding:0 6px 8px;gap:6px}
+  .tbl-head span:last-child{display:none}
+  .coin-row{grid-template-columns:20px 1fr 88px 66px;padding:10px 6px;gap:6px}
+  .coin-row .mcap{display:none}
+  .coin-icon{width:28px;height:28px;font-size:.5rem}
+  .cname{font-size:.8rem}
+  .csym{font-size:.55rem}
+  .price{font-size:.74rem}
+  .chg{font-size:.62rem;padding:3px 6px;min-width:52px;text-align:center}
+
+  /* Portfolio add row stack nicely */
+  .add-row{flex-direction:column;gap:8px}
+  .add-row select,.add-row input{min-width:unset;width:100%;padding:10px 12px;font-size:.72rem;min-height:42px}
+  .add-btn{width:100%;padding:11px;font-size:.7rem;min-height:44px}
+
+  /* Cards */
+  .port-card{padding:14px 12px}
+  .market-panel{padding:14px 10px}
+  .port-total{font-size:2rem}
+
+  /* Portfolio items */
+  .port-item{padding:10px}
+  .pi-usd{font-size:.72rem}
+
+  /* Modal padding */
+  #codeGenModal > div{padding:22px 16px !important}
+
+  /* Tutorial nav buttons — bigger tap targets */
+  #tutPrev, #tutNext{padding:11px 16px !important;font-size:.6rem !important;min-height:44px;min-width:80px}
+
+  /* Section label spacing */
+  .sec-label{margin-bottom:10px}
+
+  /* Main grid gap */
+  .main{gap:14px;padding:14px 0 24px}
+}
+
+@media(max-width:380px){
+  .tbl-head{grid-template-columns:16px 1fr 76px 58px;gap:4px}
+  .coin-row{grid-template-columns:16px 1fr 76px 58px;gap:4px}
+  .price{font-size:.66rem}
+  .chg{font-size:.58rem;min-width:46px}
+  .logo{font-size:1.35rem}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="logo">CRYPT<span>EX</span></div>
+      <div class="logo-sub">Live Markets &middot; Portfolio &middot; Forex</div>
+    </div>
+    <div class="hdr-right">
+      <div class="pro-badge" id="proBadgeHeader">&#11088; PRO</div>
+      <div class="live-pill"><div class="pulse"></div>LIVE</div>
+      <div class="last-update" id="lastUpdate">Connecting...</div>
+      <button class="hdr-btn" onclick="window.fetchPrices()">&#8635; REFRESH</button>
+      <button class="theme-toggle" id="themeToggleBtn" onclick="window.toggleTheme()" title="Toggle light/dark mode">🌙</button>
+      <button class="hdr-btn" id="accountBtn" onclick="window.openAccountModal()" style="border-color:rgba(0,180,216,.3);color:var(--blue)">&#128100; ACCOUNT</button>
+      <button class="hdr-btn" onclick="window.openProModal()" style="border-color:rgba(245,166,35,.3);color:#f5a623">&#11088; PRO</button>
+      <button class="hdr-btn hide-mobile" onclick="window.openDonate()" style="border-color:rgba(0,232,160,.3);color:var(--accent)">&#9829; DONATE</button>
+      <button class="hdr-btn hide-mobile" onclick="window.openContact()" style="border-color:rgba(0,180,216,.3);color:var(--blue)">&#9993; CONTACT</button>
+    </div>
+  </header>
+
+  <div class="ticker-wrap">
+    <div class="ticker" id="ticker"><span class="t-item">Loading...</span></div>
+  </div>
+
+  <div class="main">
+    <!-- MARKET -->
+    <div>
+      <div id="section-market" style="scroll-margin-top:70px"></div>
+      <div class="sec-label">Live Market</div>
+      <div class="market-panel">
+        <div class="tbl-head"><span>#</span><span>Asset</span><span style="text-align:right">Price</span><span style="text-align:right">24h</span><span style="text-align:right">Mkt Cap</span></div>
+        <div class="coin-rows" id="coinRows"><div class="loading-center"><div class="spinner-green"></div>Fetching...</div></div>
+      </div>
+
+      <!-- PRO: ANALYTICS -->
+      <div style="margin-top:20px">
+        <div class="sec-label">Portfolio Analytics</div>
+        <div class="port-card">
+          <div class="pro-section" id="analyticsPanel"><div class="empty-msg">Add holdings to see analytics.</div></div>
+          <div class="pro-blur" id="analyticsBlur">
+            <div style="font-size:1.8rem">&#128274;</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--gold)">PRO FEATURE</div>
+            <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);line-height:1.6">PnL tracking, allocation charts,<br>best &amp; worst performers</div>
+            <button onclick="window.openProModal()" style="background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(245,166,35,.06));border:1px solid rgba(245,166,35,.3);color:var(--gold);font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:2px;padding:9px 20px;border-radius:8px;cursor:pointer">UNLOCK FOR &euro;9</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRO: PRICE ALERTS -->
+      <div id="section-alerts" style="margin-top:20px;scroll-margin-top:70px">
+        <div class="sec-label">Price Alerts</div>
+        <div class="port-card">
+          <div class="pro-section">
+            <div class="add-row" style="margin-bottom:12px">
+              <select id="alertCoin" style="flex:2"></select>
+              <select id="alertType"><option value="above">Above</option><option value="below">Below</option></select>
+              <input type="number" id="alertPrice" placeholder="Target $" step="any" min="0">
+              <button class="add-btn" onclick="window.addAlert()" style="background:var(--gold);color:#000">+ ALERT</button>
+            </div>
+            <div id="alertsList"></div>
+          </div>
+          <div class="pro-blur" id="alertsBlur">
+            <div style="font-size:1.8rem">&#128276;</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--gold)">PRO FEATURE</div>
+            <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);line-height:1.6">Get notified when BTC, ETH or any<br>coin hits your target price</div>
+            <button onclick="window.openProModal()" style="background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(245,166,35,.06));border:1px solid rgba(245,166,35,.3);color:var(--gold);font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:2px;padding:9px 20px;border-radius:8px;cursor:pointer">UNLOCK FOR &euro;9</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COL -->
+    <div class="right-col">
+      <div class="port-card">
+        <div class="sec-label">Forex Rates</div>
+        <div class="port-items" id="forexRates"><div class="loading-center" style="padding:14px 0"><div class="spinner-green"></div></div></div>
+      </div>
+      <div class="port-card" id="section-portfolio" style="scroll-margin-top:70px">
+        <div class="sec-label">My Portfolio</div>
+        <div class="port-total-label">Total Value</div>
+        <div class="port-total" id="portTotal">$0.00</div>
+        <div class="port-change up" id="portChange">--</div>
+        <div class="port-items" id="portItems"><div class="empty-msg">No holdings yet. Add below &#8595;</div></div>
+        <div class="add-row">
+          <select id="addCoin"></select>
+          <input type="number" id="addAmt" placeholder="Amount" step="any" min="0">
+          <button class="add-btn" onclick="window.addHolding()">ADD</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TUTORIAL -->
+<div class="wrap" style="padding-bottom:80px">
+  <div id="section-tutorial" style="scroll-margin-top:70px"></div>
+  <div class="sec-label" style="margin-bottom:16px">AI Crypto Tutorial</div>
+  <div style="background:var(--surface);border:1px solid rgba(0,180,216,.25);border-radius:14px;padding:24px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-80px;left:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(0,180,216,.06) 0%,transparent 70%);pointer-events:none"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:var(--blue)">Crypto Investing Guide</div>
+      <div style="background:rgba(0,180,216,.1);border:1px solid rgba(0,180,216,.25);color:var(--blue);font-family:'Space Mono',monospace;font-size:.56rem;padding:3px 8px;border-radius:4px;letter-spacing:2px">AI POWERED</div>
+      <div style="margin-left:auto;font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted)" id="tutProgress">Step 1 of 7</div>
+    </div>
+    <div style="background:var(--border);border-radius:4px;height:4px;margin-bottom:24px;overflow:hidden">
+      <div id="tutBar" style="height:100%;background:linear-gradient(90deg,var(--blue),var(--accent));border-radius:4px;width:14%;transition:width .4s ease"></div>
+    </div>
+    <div id="tutContent" style="min-height:200px;display:flex;flex-direction:column;gap:16px"><div class="loading-center"><div class="spinner-green"></div>Loading...</div></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap;gap:10px">
+      <button id="tutPrev" onclick="window.tutNav(-1)" style="background:rgba(0,180,216,.08);border:1px solid rgba(0,180,216,.25);color:var(--blue);font-family:'Space Mono',monospace;font-size:.65rem;padding:9px 18px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;touch-action:manipulation;-webkit-tap-highlight-color:transparent"><span style="font-size:1rem;line-height:1">&#8592;</span> PREV</button>
+      <div style="display:flex;gap:6px" id="tutDots"></div>
+      <button id="tutNext" onclick="window.tutNav(1)" style="background:linear-gradient(135deg,rgba(0,180,216,.2),rgba(0,180,216,.08));border:1px solid rgba(0,180,216,.3);color:var(--blue);font-family:'Space Mono',monospace;font-size:.65rem;padding:9px 18px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;touch-action:manipulation;-webkit-tap-highlight-color:transparent">NEXT <span style="font-size:1rem;line-height:1">&#8594;</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- PRO MODAL -->
+<div id="proModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,8,13,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);align-items:flex-end;justify-content:center;padding:0">
+  <div style="background:#0c1018;border:1px solid rgba(245,166,35,.4);border-top-left-radius:24px;border-top-right-radius:24px;border-bottom-left-radius:0;border-bottom-right-radius:0;padding:0;max-width:480px;width:100%;position:relative;animation:proSlideUp .3s cubic-bezier(.16,1,.3,1);max-height:92vh;display:flex;flex-direction:column;overflow:hidden">
+
+    <!-- Drag handle -->
+    <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0;flex-shrink:0"></div>
+
+    <!-- Glow -->
+    <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(245,166,35,.1) 0%,transparent 70%);pointer-events:none;z-index:0"></div>
+
+    <!-- Close -->
+    <button onclick="window.closeProModal()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;z-index:2;-webkit-tap-highlight-color:transparent;touch-action:manipulation">&#10005;</button>
+
+    <!-- Scrollable body -->
+    <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 20px 32px;display:flex;flex-direction:column;gap:0;position:relative;z-index:1">
+
+      <!-- Header: compact horizontal on mobile -->
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;margin-top:4px">
+        <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(245,166,35,.06));border:1px solid rgba(245,166,35,.35);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">&#11088;</div>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;color:var(--gold);line-height:1">CRYPTEX PRO</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.55rem;color:var(--muted);letter-spacing:2px;margin-top:3px">ONE-TIME &middot; &euro;9 &middot; LIFETIME ACCESS</div>
+        </div>
+      </div>
+
+      <!-- Features: 3-column icon grid on mobile -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center">
+          <span style="font-size:1.3rem">&#128176;</span>
+          <div style="font-family:'Space Mono',monospace;font-size:.58rem;font-weight:700;color:var(--text)">16 Coins</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.5rem;color:var(--muted);line-height:1.4">8 extra assets</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center">
+          <span style="font-size:1.3rem">&#128276;</span>
+          <div style="font-family:'Space Mono',monospace;font-size:.58rem;font-weight:700;color:var(--text)">Alerts</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.5rem;color:var(--muted);line-height:1.4">Price targets</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center">
+          <span style="font-size:1.3rem">&#128200;</span>
+          <div style="font-family:'Space Mono',monospace;font-size:.58rem;font-weight:700;color:var(--text)">Analytics</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.5rem;color:var(--muted);line-height:1.4">PnL &amp; charts</div>
+        </div>
+      </div>
+
+      <!-- Price + Pay row -->
+      <div style="display:flex;align-items:stretch;gap:10px;margin-bottom:14px">
+        <div style="background:linear-gradient(135deg,rgba(245,166,35,.15),rgba(245,166,35,.05));border:1px solid rgba(245,166,35,.3);border-radius:12px;padding:12px 16px;text-align:center;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--gold);letter-spacing:2px;line-height:1">&euro;9</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.48rem;color:var(--muted);margin-top:2px;white-space:nowrap">ONE-TIME</div>
+        </div>
+        <a href="https://revolut.me/matyas3y05" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#00b4d8,#0077b6);border-radius:12px;padding:14px 12px;text-decoration:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-height:64px">
+          <span style="font-size:1.1rem">&#128308;</span>
+          <div style="font-family:'Space Mono',monospace;font-weight:700;color:#fff;font-size:.72rem;letter-spacing:1px;line-height:1.3">PAY &euro;9<br>VIA REVOLUT</div>
+        </a>
+      </div>
+
+      <!-- QR collapsible -->
+      <button onclick="(function(b){var q=document.getElementById('proQrPanel');var open=q.style.display!=='none';q.style.display=open?'none':'block';b.querySelector('.proQrArrow').textContent=open?'▼':'▲';})(this)" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:'Space Mono',monospace;font-size:.6rem;padding:10px 14px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;letter-spacing:1px;margin-bottom:4px;-webkit-tap-highlight-color:transparent;touch-action:manipulation">
+        <span>&#128247; SHOW QR CODE &middot; @matyas3y05</span>
+        <span class="proQrArrow" style="font-size:.7rem">&#9660;</span>
+      </button>
+      <div id="proQrPanel" style="display:none;background:#f5f5f5;border-radius:12px;padding:14px;text-align:center;margin-bottom:14px">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://revolut.me/matyas3y05&color=000000&bgcolor=f5f5f5" style="width:140px;height:140px;border-radius:6px" alt="Revolut QR">
+        <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:#333;margin-top:8px;letter-spacing:1px">SCAN WITH CAMERA &middot; @matyas3y05</div>
+      </div>
+
+      <!-- After payment -->
+      <div style="background:rgba(0,232,160,.05);border:1px solid rgba(0,232,160,.15);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+        <div style="font-family:'Space Mono',monospace;font-size:.55rem;color:var(--accent);letter-spacing:2px;margin-bottom:7px">&#9989; AFTER PAYMENT</div>
+        <div style="font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted2);line-height:1.8">1. Send &euro;9 to <b style="color:var(--text)">@matyas3y05</b><br>2. Enter your unlock code below<br>3. Enjoy CRYPTEX Pro!</div>
+      </div>
+
+      <!-- Unlock input — stacked for easy mobile tapping -->
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:6px">
+        <input id="proCodeInput" type="text" placeholder="Enter unlock code..." autocomplete="off" autocapitalize="characters" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.8rem;padding:14px 16px;border-radius:10px;outline:none;letter-spacing:2px;min-height:50px;-webkit-appearance:none" oninput="this.style.borderColor='var(--border)'">
+        <button onclick="window.checkProCode()" style="width:100%;background:var(--gold);color:#000;border:none;font-family:'Space Mono',monospace;font-size:.75rem;font-weight:700;padding:14px;border-radius:10px;cursor:pointer;letter-spacing:2px;min-height:50px;-webkit-tap-highlight-color:transparent;touch-action:manipulation">&#128275; UNLOCK PRO</button>
+      </div>
+      <div id="proCodeError" style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--red);margin-top:4px;display:none;padding:8px 12px;background:rgba(255,61,110,.07);border:1px solid rgba(255,61,110,.2);border-radius:7px">Wrong code. Contact @matyas3y05 after payment.</div>
+
+      <div style="margin-top:14px;text-align:center">
+        <button onclick="window.openAdminGate()" style="background:transparent;border:none;font-family:'Space Mono',monospace;font-size:.55rem;color:var(--muted);cursor:pointer;letter-spacing:1px;text-decoration:underline;-webkit-tap-highlight-color:transparent;padding:8px">&#128273; Admin</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes proSlideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+
+<!-- ACCOUNT MODAL -->
+<div id="accountModal" style="display:none;position:fixed;inset:0;z-index:9995;background:rgba(6,8,13,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);align-items:flex-end;justify-content:center;padding:0">
+  <div id="accountSheet" style="background:var(--surface);border:1px solid var(--border);border-top-left-radius:24px;border-top-right-radius:24px;max-width:480px;width:100%;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;animation:proSlideUp .3s cubic-bezier(.16,1,.3,1)">
+    <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0;flex-shrink:0"></div>
+    <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 20px 40px;display:flex;flex-direction:column;gap:0">
+      <button onclick="window.closeAccountModal()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent">&#10005;</button>
+
+      <!-- LOGGED OUT VIEW -->
+      <div id="accLoggedOut">
+        <div style="text-align:center;margin-bottom:22px;margin-top:6px">
+          <div style="font-size:2rem;margin-bottom:8px">&#128100;</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:4px;color:var(--blue);line-height:1">YOUR ACCOUNT</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.55rem;color:var(--muted);letter-spacing:2px;margin-top:4px">SIGN IN TO SYNC ACROSS DEVICES</div>
+        </div>
+
+        <!-- Tabs -->
+        <div style="display:flex;gap:6px;margin-bottom:20px">
+          <button id="accTabLogin" onclick="window.accShowTab('login')" style="flex:1;padding:10px;border-radius:9px;font-family:'Space Mono',monospace;font-size:.62rem;font-weight:700;letter-spacing:1px;cursor:pointer;-webkit-tap-highlight-color:transparent;background:rgba(0,180,216,.12);border:1px solid rgba(0,180,216,.3);color:var(--blue)">SIGN IN</button>
+          <button id="accTabSignup" onclick="window.accShowTab('signup')" style="flex:1;padding:10px;border-radius:9px;font-family:'Space Mono',monospace;font-size:.62rem;font-weight:700;letter-spacing:1px;cursor:pointer;-webkit-tap-highlight-color:transparent;background:var(--surface2);border:1px solid var(--border);color:var(--muted2)">CREATE ACCOUNT</button>
+        </div>
+
+        <!-- Sign In form -->
+        <div id="accFormLogin" style="display:flex;flex-direction:column;gap:10px">
+          <input id="accLoginEmail" type="email" placeholder="Email address" autocomplete="email" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.72rem;padding:13px 15px;border-radius:10px;outline:none;min-height:48px;-webkit-appearance:none">
+          <input id="accLoginPw" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.72rem;padding:13px 15px;border-radius:10px;outline:none;min-height:48px;-webkit-appearance:none" onkeydown="if(event.key==='Enter')window.accLogin()">
+          <button onclick="window.accLogin()" style="width:100%;background:linear-gradient(135deg,rgba(0,180,216,.2),rgba(0,180,216,.06));border:1px solid rgba(0,180,216,.35);color:var(--blue);font-family:'Space Mono',monospace;font-size:.72rem;font-weight:700;padding:14px;border-radius:10px;cursor:pointer;letter-spacing:2px;min-height:50px;-webkit-tap-highlight-color:transparent">&#128275; SIGN IN</button>
+        </div>
+
+        <!-- Sign Up form -->
+        <div id="accFormSignup" style="display:none;flex-direction:column;gap:10px">
+          <input id="accSignupName" type="text" placeholder="Your name" autocomplete="name" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.72rem;padding:13px 15px;border-radius:10px;outline:none;min-height:48px;-webkit-appearance:none">
+          <input id="accSignupEmail" type="email" placeholder="Email address" autocomplete="email" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.72rem;padding:13px 15px;border-radius:10px;outline:none;min-height:48px;-webkit-appearance:none">
+          <input id="accSignupPw" type="password" placeholder="Password (min 6 chars)" autocomplete="new-password" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.72rem;padding:13px 15px;border-radius:10px;outline:none;min-height:48px;-webkit-appearance:none" onkeydown="if(event.key==='Enter')window.accSignUp()">
+          <button onclick="window.accSignUp()" style="width:100%;background:linear-gradient(135deg,rgba(0,232,160,.15),rgba(0,232,160,.05));border:1px solid rgba(0,232,160,.3);color:var(--accent);font-family:'Space Mono',monospace;font-size:.72rem;font-weight:700;padding:14px;border-radius:10px;cursor:pointer;letter-spacing:2px;min-height:50px;-webkit-tap-highlight-color:transparent">&#10024; CREATE ACCOUNT</button>
+        </div>
+
+        <div id="accError" style="display:none;font-family:'Space Mono',monospace;font-size:.58rem;color:var(--red);margin-top:10px;padding:10px 13px;background:rgba(255,61,110,.07);border:1px solid rgba(255,61,110,.2);border-radius:8px;text-align:center"></div>
+
+        <!-- Benefits -->
+        <div style="margin-top:20px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px">
+          <div style="font-family:'Space Mono',monospace;font-size:.55rem;color:var(--muted);letter-spacing:2px;margin-bottom:10px">WHY CREATE AN ACCOUNT?</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted2)"><span style="color:var(--accent)">✓</span> Portfolio synced across all your devices</div>
+            <div style="display:flex;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted2)"><span style="color:var(--accent)">✓</span> Pro status saved to your account</div>
+            <div style="display:flex;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted2)"><span style="color:var(--accent)">✓</span> Price alerts preserved in the cloud</div>
+            <div style="display:flex;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted2)"><span style="color:var(--accent)">✓</span> Never lose your data if you clear the app</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOGGED IN VIEW -->
+      <div id="accLoggedIn" style="display:none">
+        <!-- Avatar + name -->
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;margin-top:6px">
+          <div id="accAvatar" style="width:52px;height:52px;border-radius:16px;background:rgba(0,180,216,.15);border:1px solid rgba(0,180,216,.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--blue);flex-shrink:0">?</div>
+          <div style="flex:1;min-width:0">
+            <div id="accDisplayName" style="font-size:1.1rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+            <div id="accDisplayEmail" style="font-family:'Space Mono',monospace;font-size:.55rem;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+          </div>
+          <div id="accProBadge" style="display:none;background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(245,166,35,.08));border:1px solid rgba(245,166,35,.35);padding:4px 10px;border-radius:20px;font-family:'Space Mono',monospace;font-size:.55rem;color:var(--gold);white-space:nowrap">⭐ PRO</div>
+        </div>
+
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center">
+            <div id="accStatHoldings" style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--accent)">0</div>
+            <div style="font-family:'Space Mono',monospace;font-size:.48rem;color:var(--muted);letter-spacing:1px;margin-top:2px">HOLDINGS</div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center">
+            <div id="accStatAlerts" style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--blue)">0</div>
+            <div style="font-family:'Space Mono',monospace;font-size:.48rem;color:var(--muted);letter-spacing:1px;margin-top:2px">ALERTS</div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center">
+            <div id="accStatStatus" style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--muted);margin-top:4px">FREE</div>
+            <div style="font-family:'Space Mono',monospace;font-size:.48rem;color:var(--muted);letter-spacing:1px;margin-top:2px">PLAN</div>
+          </div>
+        </div>
+
+        <!-- Sync button -->
+        <button onclick="window.accSync()" id="accSyncBtn" style="width:100%;padding:13px;background:rgba(0,232,160,.08);border:1px solid rgba(0,232,160,.2);color:var(--accent);font-family:'Space Mono',monospace;font-size:.65rem;font-weight:700;border-radius:10px;cursor:pointer;letter-spacing:1.5px;margin-bottom:10px;-webkit-tap-highlight-color:transparent">&#9729; SYNC TO CLOUD NOW</button>
+
+        <!-- Sign out -->
+        <button onclick="window.accSignOut()" style="width:100%;padding:13px;background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:'Space Mono',monospace;font-size:.65rem;font-weight:700;border-radius:10px;cursor:pointer;letter-spacing:1.5px;-webkit-tap-highlight-color:transparent">&#128682; SIGN OUT</button>
+
+        <div style="font-family:'Space Mono',monospace;font-size:.52rem;color:var(--muted);text-align:center;margin-top:14px;line-height:1.7">Your data syncs automatically whenever<br>your portfolio or alerts change.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN GATE MODAL -->
+<div id="adminGateModal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(6,8,13,.94);backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#0c1018;border:1px solid rgba(245,166,35,.3);border-radius:18px;padding:28px 24px;max-width:340px;width:100%;position:relative;animation:rise .25s ease">
+    <button onclick="window.closeAdminGate()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted2);width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center">&#10005;</button>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:1.8rem;margin-bottom:8px">&#128274;</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--gold)">ADMIN ACCESS</div>
+      <div style="font-family:'Space Mono',monospace;font-size:.55rem;color:var(--muted);letter-spacing:2px;margin-top:4px">RESTRICTED AREA</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input id="adminPwInput" type="password" placeholder="Enter admin password..." style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.78rem;padding:13px 15px;border-radius:9px;outline:none;letter-spacing:2px;min-height:48px;-webkit-appearance:none" oninput="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')window.checkAdminPw()">
+      <button onclick="window.checkAdminPw()" style="width:100%;background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(245,166,35,.06));border:1px solid rgba(245,166,35,.35);color:var(--gold);font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;padding:13px;border-radius:9px;cursor:pointer;letter-spacing:2px;min-height:48px;-webkit-tap-highlight-color:transparent">ENTER</button>
+    </div>
+    <div id="adminPwError" style="display:none;font-family:'Space Mono',monospace;font-size:.58rem;color:var(--red);margin-top:8px;text-align:center;padding:7px;background:rgba(255,61,110,.07);border:1px solid rgba(255,61,110,.18);border-radius:7px">Incorrect password.</div>
+  </div>
+</div>
+
+<!-- CONTACT US MODAL -->
+<div id="contactModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,8,13,.92);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#0c1018;border:1px solid rgba(0,180,216,.35);border-radius:20px;padding:32px;max-width:420px;width:100%;position:relative;animation:rise .3s ease;max-height:90vh;overflow-y:auto">
+    <div style="position:absolute;top:-80px;right:-80px;width:250px;height:250px;background:radial-gradient(circle,rgba(0,180,216,.08) 0%,transparent 70%);pointer-events:none"></div>
+    <button onclick="window.closeContact()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted2);width:30px;height:30px;border-radius:6px;cursor:pointer">&#10005;</button>
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:2.5rem;margin-bottom:10px">&#9993;</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:5px;color:var(--blue)">CONTACT US</div>
+      <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:2px;margin-top:6px">WE'D LOVE TO HEAR FROM YOU</div>
+    </div>
+    <!-- Email CTA -->
+    <a href="mailto:Cryptexisreal@gmail.com" style="display:flex;align-items:center;gap:14px;background:rgba(0,180,216,.07);border:1px solid rgba(0,180,216,.25);border-radius:13px;padding:18px 20px;text-decoration:none;margin-bottom:20px;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(0,180,216,.5)'" onmouseout="this.style.borderColor='rgba(0,180,216,.25)'">
+      <div style="width:44px;height:44px;border-radius:11px;background:rgba(0,180,216,.12);border:1px solid rgba(0,180,216,.3);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">&#9993;</div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:2px;margin-bottom:4px">EMAIL US</div>
+        <div style="font-family:'Space Mono',monospace;font-size:.78rem;color:var(--blue);font-weight:700;letter-spacing:1px">Cryptexisreal@gmail.com</div>
+      </div>
+      <span style="margin-left:auto;font-size:1rem;color:var(--blue)">&#8594;</span>
+    </a>
+    <!-- Response info -->
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px">
+        <span style="font-size:1.1rem">⚡</span>
+        <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted2);line-height:1.6"><b style="color:var(--text)">Pro Unlock Issues</b><br>Lost your code or need a new one? Email us with your payment reference.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px">
+        <span style="font-size:1.1rem">🛠️</span>
+        <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted2);line-height:1.6"><b style="color:var(--text)">Bug Reports & Feedback</b><br>Found something broken or have a feature idea? Let us know!</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px">
+        <span style="font-size:1.1rem">💬</span>
+        <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted2);line-height:1.6"><b style="color:var(--text)">General Enquiries</b><br>Anything else — we usually reply within 24 hours.</div>
+      </div>
+    </div>
+    <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);text-align:center;line-height:1.7">Built with &#9829; by the CRYPTEX team<br>&#169; 2026 CRYPTEX &middot; All rights reserved</div>
+  </div>
+</div>
+
+<!-- CODE GENERATOR MODAL -->
+<div id="codeGenModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,8,13,.92);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:16px">
+  <div style="background:#0c1018;border:1px solid rgba(245,166,35,.35);border-radius:20px;padding:28px 24px;max-width:500px;width:100%;position:relative;animation:rise .3s ease;max-height:92vh;overflow-y:auto">
+
+    <!-- Glow -->
+    <div style="position:absolute;top:-60px;left:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(245,166,35,.08) 0%,transparent 70%);pointer-events:none"></div>
+    <div style="position:absolute;bottom:-60px;right:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(0,232,160,.05) 0%,transparent 70%);pointer-events:none"></div>
+
+    <!-- Header -->
+    <button onclick="window.closeCodeGen()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent">&#10005;</button>
+    <div style="margin-bottom:22px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+        <span style="font-size:1.6rem">&#128273;</span>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:4px;color:var(--gold);line-height:1">CODE GENERATOR</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.55rem;color:var(--muted);letter-spacing:2px;margin-top:2px">ADMIN TOOL &middot; PRO UNLOCK CODES</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BIG ONE-TAP GENERATE BUTTON -->
+    <button id="cgBigBtn" onclick="window.cgGenerate()" style="width:100%;padding:18px;border-radius:14px;background:linear-gradient(135deg,rgba(245,166,35,.22),rgba(245,166,35,.06));border:1px solid rgba(245,166,35,.4);color:var(--gold);font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:opacity .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;-webkit-tap-highlight-color:transparent;touch-action:manipulation" onmousedown="this.style.transform='scale(.97)'" onmouseup="this.style.transform=''" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
+      <span style="font-size:1.3rem">&#127922;</span> GENERATE RANDOM CODE
+    </button>
+
+    <!-- OR custom input -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <div style="font-family:'Space Mono',monospace;font-size:.55rem;color:var(--muted);letter-spacing:2px">OR TYPE CUSTOM</div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <input id="codeGenInput" type="text" placeholder="e.g. CRYPTEX-JOHN-2026" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.7rem;padding:11px 13px;border-radius:9px;outline:none;letter-spacing:1.5px;min-width:0" oninput="window.cgOnInput()">
+      <button onclick="window.cgHashCustom()" style="background:rgba(0,232,160,.1);border:1px solid rgba(0,232,160,.25);color:var(--accent);font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;padding:11px 14px;border-radius:9px;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;touch-action:manipulation">&#9889; HASH</button>
+    </div>
+
+    <!-- Result card -->
+    <div id="codeGenResult" style="display:none;margin-bottom:16px">
+      <div style="background:rgba(0,232,160,.04);border:1px solid rgba(0,232,160,.22);border-radius:14px;padding:18px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(0,232,160,.07) 0%,transparent 70%);pointer-events:none"></div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+          <span id="cgResultIcon" style="font-size:1rem">&#10003;</span>
+          <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--accent);letter-spacing:2px" id="cgResultLabel">CODE GENERATED</div>
+          <div id="cgStrengthBadge" style="margin-left:auto;font-family:'Space Mono',monospace;font-size:.52rem;padding:2px 8px;border-radius:4px;background:rgba(0,232,160,.1);color:var(--accent);border:1px solid rgba(0,232,160,.2)">STRONG</div>
+        </div>
+
+        <!-- Code row -->
+        <div style="margin-bottom:10px">
+          <div style="font-family:'Space Mono',monospace;font-size:.52rem;color:var(--muted);letter-spacing:2px;margin-bottom:5px">&#128272; UNLOCK CODE <span style="color:var(--muted)">(send to customer)</span></div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div id="resultCode" style="font-family:'Space Mono',monospace;font-size:.75rem;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 13px;flex:1;letter-spacing:1.5px;word-break:break-all;min-width:0"></div>
+            <button onclick="window.cgCopy('resultCode','cgCopyCodeBtn')" id="cgCopyCodeBtn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:'Space Mono',monospace;font-size:.55rem;padding:10px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;white-space:nowrap">COPY</button>
+          </div>
+        </div>
+
+        <!-- Hash row -->
+        <div>
+          <div style="font-family:'Space Mono',monospace;font-size:.52rem;color:var(--muted);letter-spacing:2px;margin-bottom:5px">&#128274; SHA-256 HASH <span style="color:var(--muted)">(paste into PRO_CODE_HASHES)</span></div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div id="resultHash" style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--accent);background:var(--bg);border:1px solid rgba(0,232,160,.18);border-radius:8px;padding:10px 13px;flex:1;word-break:break-all;line-height:1.5;min-width:0"></div>
+            <button onclick="window.cgCopy('resultHash','cgCopyHashBtn')" id="cgCopyHashBtn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:'Space Mono',monospace;font-size:.55rem;padding:10px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;white-space:nowrap">COPY</button>
+          </div>
+        </div>
+
+        <!-- Copy both button -->
+        <button onclick="window.cgCopyBoth()" id="cgCopyBothBtn" style="width:100%;margin-top:12px;padding:10px;background:rgba(0,232,160,.08);border:1px solid rgba(0,232,160,.2);color:var(--accent);font-family:'Space Mono',monospace;font-size:.62rem;font-weight:700;border-radius:9px;cursor:pointer;letter-spacing:1.5px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:opacity .15s">&#128203; COPY BOTH</button>
+      </div>
+    </div>
+
+    <!-- How to use -->
+    <div style="background:rgba(0,180,216,.04);border:1px solid rgba(0,180,216,.18);border-radius:11px;padding:14px 16px;margin-bottom:16px">
+      <div style="font-family:'Space Mono',monospace;font-size:.55rem;color:var(--blue);letter-spacing:2px;margin-bottom:8px">&#128196; HOW TO USE</div>
+      <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted2);line-height:1.9">
+        1. Hit <b style="color:var(--gold)">GENERATE RANDOM CODE</b> — or type a custom one<br>
+        2. Send the <b style="color:var(--text)">UNLOCK CODE</b> to your customer<br>
+        3. Paste the <b style="color:var(--text)">HASH</b> into <code style="color:var(--accent);background:rgba(0,232,160,.07);padding:1px 6px;border-radius:3px">PRO_CODE_HASHES</code> in the HTML<br>
+        4. Save the file — customer can now unlock PRO &#10003;
+      </div>
+    </div>
+
+    <!-- Session history -->
+    <div id="codeHistory" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-family:'Space Mono',monospace;font-size:.55rem;color:var(--muted);letter-spacing:2px">SESSION HISTORY</div>
+        <button onclick="window.cgClearHistory()" style="background:transparent;border:none;font-family:'Space Mono',monospace;font-size:.52rem;color:var(--muted);cursor:pointer;letter-spacing:1px;-webkit-tap-highlight-color:transparent">CLEAR</button>
+      </div>
+      <div id="historyList" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto"></div>
+    </div>
+
+    <div id="codeGenError" style="display:none;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--red);margin-top:8px;padding:10px 13px;background:rgba(255,61,110,.06);border:1px solid rgba(255,61,110,.2);border-radius:8px"></div>
+  </div>
+</div>
+
+<!-- DONATE MODAL -->
+<div id="donateModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(6,8,13,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#0c1018;border:1px solid rgba(245,166,35,.3);border-radius:18px;padding:28px;max-width:400px;width:100%;position:relative;animation:rise .3s ease;max-height:90vh;overflow-y:auto">
+    <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(245,166,35,.08) 0%,transparent 70%);pointer-events:none"></div>
+    <button onclick="window.closeDonate()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted2);width:30px;height:30px;border-radius:6px;cursor:pointer">&#10005;</button>
+    <div style="text-align:center;margin-bottom:22px">
+      <div style="font-size:2rem;margin-bottom:8px">&#9829;</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:4px;color:#f5a623">Support CRYPTEX</div>
+      <div style="font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:2px;margin-top:4px">CHOOSE CURRENCY &amp; AMOUNT</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:22px">
+      <button class="don-tab active" onclick="window.selectCurrency('EUR')" id="tab-EUR" style="flex:1">&#8364; EUR</button>
+      <button class="don-tab" onclick="window.selectCurrency('USD')" id="tab-USD" style="flex:1">&#36; USD</button>
+    </div>
+    <div style="margin-bottom:18px">
+      <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:2px;margin-bottom:10px" id="donCurrLabel">SELECT AMOUNT IN EUR</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="donAmounts">
+        <button class="amt-btn active" onclick="window.selectAmt(this,'5')">&#8364;5</button>
+        <button class="amt-btn" onclick="window.selectAmt(this,'10')">&#8364;10</button>
+        <button class="amt-btn" onclick="window.selectAmt(this,'25')">&#8364;25</button>
+        <button class="amt-btn" onclick="window.selectAmt(this,'50')">&#8364;50</button>
+        <button class="amt-btn" onclick="window.selectAmt(this,'custom')">Custom</button>
+      </div>
+      <div id="customAmtRow" style="display:none">
+        <input id="customAmt" type="number" min="1" placeholder="Enter amount..." style="width:100%;background:#111820;border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.8rem;padding:10px 14px;border-radius:8px;outline:none">
+      </div>
+    </div>
+    <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:2px;margin-bottom:10px">PAY WITH</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <a id="revolutDonBtn" href="https://revolut.me/matyas3y05" target="_blank" style="display:flex;align-items:center;gap:12px;background:#191c1f;border:1px solid #333;border-radius:10px;padding:13px 16px;text-decoration:none;transition:opacity .2s">
+        <span style="font-size:1.3rem">&#128308;</span>
+        <div><div style="font-family:'DM Sans',sans-serif;font-weight:600;color:#fff;font-size:.9rem">Revolut &mdash; @matyas3y05</div>
+        <div style="font-family:'Space Mono',monospace;font-size:.58rem;color:#aaa">Tap to open &middot; or scan QR below</div></div>
+        <span style="margin-left:auto;font-family:'Space Mono',monospace;font-size:.7rem;color:#fff;font-weight:700" id="revolutAmt">&#8364;5</span>
+      </a>
+      <div style="background:#f5f5f5;border-radius:12px;padding:16px;text-align:center">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://revolut.me/matyas3y05&color=000000&bgcolor=f5f5f5" style="width:180px;height:180px;border-radius:8px" alt="Revolut QR">
+        <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:#333;margin-top:8px;letter-spacing:1px">SCAN WITH CAMERA &middot; @matyas3y05</div>
+      </div>
+    </div>
+    <div style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);text-align:center">Thank you for supporting CRYPTEX &#9829;</div>
+  </div>
+</div>
+
+<script>
+// ── PRO UNLOCK CODES ──
+// Each entry is a SHA-256 hash of a unique customer code.
+// Add new hashes here when you make a sale (use the CRYPTEX Code Generator tool).
+var PRO_CODE_HASHES=[
+  '0cc771788c954278a23f42676df8b3a142e85eef0ba61c1b778460cece86d4ad' // default: CRYPTEX-PRO-2026
+  // Paste new hashes below, one per line, comma-separated:
+  // 'abc123...hash...',
+];
+
+async function sha256(str){
+  var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+window.openProModal=function(){
+  var m=document.getElementById('proModal');
+  m.style.display='flex';
+  // reset scroll
+  var body=m.querySelector('[style*="overflow-y:auto"]');
+  if(body) body.scrollTop=0;
+};
+window.closeProModal=function(){document.getElementById('proModal').style.display='none';};
+
+// Swipe down to close PRO modal
+(function(){
+  var modal=document.getElementById('proModal');
+  var sheet=modal.querySelector('div');
+  var startY=0,isDragging=false;
+  sheet.addEventListener('touchstart',function(e){
+    var scrollable=sheet.querySelector('[style*="overflow-y:auto"]');
+    if(scrollable&&scrollable.scrollTop>0) return;
+    startY=e.touches[0].clientY;isDragging=true;
+  },{passive:true});
+  sheet.addEventListener('touchmove',function(e){
+    if(!isDragging) return;
+    var dy=e.touches[0].clientY-startY;
+    if(dy>0) sheet.style.transform='translateY('+dy+'px)';
+  },{passive:true});
+  sheet.addEventListener('touchend',function(e){
+    if(!isDragging) return;
+    isDragging=false;
+    var dy=e.changedTouches[0].clientY-startY;
+    sheet.style.transform='';
+    if(dy>80) window.closeProModal();
+  });
+  modal.addEventListener('click',function(e){if(e.target===modal)window.closeProModal();});
+})();
+window.checkProCode=async function(){
+  var input=document.getElementById('proCodeInput').value.trim();
+  if(!input) return;
+  var hash=await sha256(input);
+  if(PRO_CODE_HASHES.indexOf(hash)!==-1){
+    try{localStorage.setItem('cryptex_pro','UNLOCKED');}catch(e){}
+    window.closeProModal();
+    document.getElementById('proBadgeHeader').style.display='flex';
+    document.querySelectorAll('.pro-section').forEach(function(s){s.style.display='block';});
+    document.querySelectorAll('.pro-blur').forEach(function(s){s.style.display='none';});
+    if(window.refreshPro) window.refreshPro();
+    setTimeout(function(){
+      var alertSel=document.getElementById('alertCoin');
+      var addSel=document.getElementById('addCoin');
+      if(alertSel&&addSel) alertSel.innerHTML=addSel.innerHTML;
+    }, 500);
+    if(window.refreshPro) window.refreshPro();
+    showProSuccess();
+  } else {
+    document.getElementById('proCodeInput').style.borderColor='var(--red)';
+    document.getElementById('proCodeError').style.display='block';
+    document.getElementById('proCodeInput').animate([{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}],{duration:300});
+  }
+};
+
+function showProSuccess(){
+  var n=document.createElement('div');
+  n.style.cssText='position:fixed;top:20px;right:20px;z-index:99999;background:#0c1018;border:1px solid var(--gold);border-radius:12px;padding:16px 20px;font-family:monospace;font-size:.75rem;color:var(--gold);box-shadow:0 8px 32px rgba(245,166,35,.25);animation:rise .3s ease;letter-spacing:1px';
+  n.innerHTML='⭐ CRYPTEX PRO UNLOCKED! Welcome!';
+  document.body.appendChild(n);
+  setTimeout(function(){n.remove();},4000);
+}
+
+// ── CONTACT US ──
+window.openContact=function(){document.getElementById('contactModal').style.display='flex';};
+window.closeContact=function(){document.getElementById('contactModal').style.display='none';};
+document.getElementById('contactModal').addEventListener('click',function(e){if(e.target===this)window.closeContact();});
+
+// ── CODE GENERATOR ──
+var _codeGenHistory=[];
+
+window.openCodeGen=function(){document.getElementById('codeGenModal').style.display='flex';};
+window.closeCodeGen=function(){document.getElementById('codeGenModal').style.display='none';};
+document.getElementById('codeGenModal').addEventListener('click',function(e){if(e.target===this)window.closeCodeGen();});
+
+window.cgOnInput=function(){
+  document.getElementById('codeGenResult').style.display='none';
+  document.getElementById('codeGenError').style.display='none';
+};
+
+// Word pools for random generation
+var CG_WORDS={
+  adj:['ALPHA','BETA','DELTA','SIGMA','OMEGA','NOVA','APEX','PRIME','ELITE','ULTRA','CYBER','HYPER','NEXUS','SOLAR','LUNAR','ASTRO','TURBO','TITAN','VIPER','STORM'],
+  noun:['HAWK','WOLF','LION','BULL','BEAR','EAGLE','TITAN','GHOST','NEXUS','BLADE','PIXEL','ORBIT','COMET','FORGE','RIDGE','PULSE','SPARK','FLARE','CRYPT','VAULT'],
+  prefix:['CRYPTEX','CRX','PRO','UNLOCK','VIP','ACCESS','GOLD']
+};
+
+function cgRand(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function cgRandNum(min,max){return Math.floor(min+Math.random()*(max-min+1));}
+
+function cgRandomCode(){
+  var style=Math.floor(Math.random()*4);
+  var y=new Date().getFullYear();
+  if(style===0) return 'CRYPTEX-'+cgRand(CG_WORDS.adj)+'-'+cgRand(CG_WORDS.noun)+'-'+cgRandNum(100,999);
+  if(style===1) return cgRand(CG_WORDS.prefix)+'-'+cgRand(CG_WORDS.adj)+cgRandNum(10,99)+'-'+y;
+  if(style===2) return 'CRX'+cgRandNum(1000,9999)+'-'+cgRand(CG_WORDS.noun)+'-'+cgRand(CG_WORDS.adj);
+  return cgRand(CG_WORDS.prefix)+'-'+cgRandNum(100000,999999)+'-'+y;
+}
+
+function cgStrength(code){
+  var len=code.length;
+  var entropy=Math.log2(Math.pow(36,len));
+  if(len>=20&&entropy>100) return{label:'STRONG',color:'var(--green)',bg:'rgba(0,232,160,.1)',border:'rgba(0,232,160,.25)'};
+  if(len>=14) return{label:'GOOD',color:'var(--blue)',bg:'rgba(0,180,216,.1)',border:'rgba(0,180,216,.25)'};
+  return{label:'WEAK',color:'var(--red)',bg:'rgba(255,61,110,.1)',border:'rgba(255,61,110,.25)'};
+}
+
+async function cgShowResult(code){
+  var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(code));
+  var hash=Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+
+  document.getElementById('resultCode').textContent=code;
+  document.getElementById('resultHash').textContent=hash;
+
+  var s=cgStrength(code);
+  var badge=document.getElementById('cgStrengthBadge');
+  badge.textContent=s.label;
+  badge.style.color=s.color;
+  badge.style.background=s.bg;
+  badge.style.borderColor=s.border;
+
+  document.getElementById('codeGenResult').style.display='block';
+  document.getElementById('codeGenError').style.display='none';
+
+  // Reset copy buttons
+  ['cgCopyCodeBtn','cgCopyHashBtn','cgCopyBothBtn'].forEach(function(id){
+    var b=document.getElementById(id);
+    if(b){b.textContent=id==='cgCopyBothBtn'?'📋 COPY BOTH':'COPY';b.style.color='';b.style.borderColor='';}
+  });
+
+  // Add to history
+  _codeGenHistory.unshift({code:code,hash:hash});
+  if(_codeGenHistory.length>12) _codeGenHistory.pop();
+  cgRenderHistory();
+}
+
+function cgRenderHistory(){
+  var histDiv=document.getElementById('codeHistory');
+  var histList=document.getElementById('historyList');
+  if(!_codeGenHistory.length){histDiv.style.display='none';return;}
+  histDiv.style.display='block';
+  histList.innerHTML='';
+  _codeGenHistory.forEach(function(entry,i){
+    var row=document.createElement('div');
+    row.style.cssText='background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .15s;-webkit-tap-highlight-color:transparent';
+    row.onmouseover=function(){this.style.borderColor='rgba(245,166,35,.3)';};
+    row.onmouseout=function(){this.style.borderColor='var(--border)';};
+    row.title='Tap to reload';
+    row.innerHTML='<span style="font-family:\'Space Mono\',monospace;font-size:.52rem;color:var(--muted);flex-shrink:0">#'+(i+1)+'</span>'
+      +'<span style="font-family:\'Space Mono\',monospace;font-size:.62rem;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:1px">'+entry.code+'</span>'
+      +'<button onclick="event.stopPropagation();window.cgCopyFromHistory(\''+entry.code+'\',\''+entry.hash+'\',this)" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-family:\'Space Mono\',monospace;font-size:.5rem;padding:4px 8px;border-radius:5px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent">COPY</button>';
+    row.addEventListener('click',function(){
+      document.getElementById('codeGenInput').value=entry.code;
+      cgShowResult(entry.code);
+    });
+    histList.appendChild(row);
+  });
+}
+
+window.cgCopyFromHistory=function(code,hash,btn){
+  var text=code+'\n\nHash: '+hash;
+  navigator.clipboard.writeText(text).catch(function(){});
+  btn.textContent='✓';
+  btn.style.color='var(--accent)';
+  setTimeout(function(){btn.textContent='COPY';btn.style.color='';},1500);
+};
+
+window.cgGenerate=function(){
+  var code=cgRandomCode();
+  document.getElementById('codeGenInput').value=code;
+  cgShowResult(code);
+};
+
+window.cgHashCustom=async function(){
+  var code=document.getElementById('codeGenInput').value.trim().toUpperCase();
+  if(!code){
+    var e=document.getElementById('codeGenError');
+    e.textContent='Please type a code first.';
+    e.style.display='block';
+    return;
+  }
+  document.getElementById('codeGenInput').value=code;
+  cgShowResult(code);
+};
+
+window.cgCopy=function(elId,btnId){
+  var text=document.getElementById(elId).textContent;
+  var btn=document.getElementById(btnId);
+  navigator.clipboard.writeText(text).then(function(){
+    btn.textContent='✓ DONE';btn.style.color='var(--accent)';btn.style.borderColor='rgba(0,232,160,.3)';
+    setTimeout(function(){btn.textContent='COPY';btn.style.color='';btn.style.borderColor='';},1800);
+  }).catch(function(){
+    var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+    btn.textContent='✓';setTimeout(function(){btn.textContent='COPY';},1500);
+  });
+};
+
+window.cgCopyBoth=function(){
+  var code=document.getElementById('resultCode').textContent;
+  var hash=document.getElementById('resultHash').textContent;
+  var text='CRYPTEX PRO CODE\nCode: '+code+'\nHash: '+hash;
+  var btn=document.getElementById('cgCopyBothBtn');
+  navigator.clipboard.writeText(text).then(function(){
+    btn.textContent='✓ COPIED!';btn.style.color='var(--accent)';
+    setTimeout(function(){btn.textContent='📋 COPY BOTH';btn.style.color='';},2000);
+  }).catch(function(){
+    var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+    btn.textContent='✓ COPIED!';setTimeout(function(){btn.textContent='📋 COPY BOTH';},1800);
+  });
+};
+
+window.cgClearHistory=function(){
+  _codeGenHistory=[];
+  cgRenderHistory();
+};
+
+// Legacy aliases so older obfuscated code that calls these still works
+window.randomCode=window.cgGenerate;
+window.generateHash=window.cgHashCustom;
+window.clearGenResult=function(){document.getElementById('codeGenResult').style.display='none';document.getElementById('codeGenError').style.display='none';};
+window.copyText=function(elId,btnId){window.cgCopy(elId,btnId);};
+
+// ── DONATE ──
+var donCurrency='EUR', donAmount='5';
+window.openDonate=function(){document.getElementById('donateModal').style.display='flex';};
+window.closeDonate=function(){document.getElementById('donateModal').style.display='none';};
+window.selectCurrency=function(cur){
+  donCurrency=cur;
+  var sym=cur==='EUR'?'€':'$';
+  document.querySelectorAll('.don-tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('tab-'+cur).classList.add('active');
+  document.getElementById('donCurrLabel').textContent='SELECT AMOUNT IN '+cur;
+  var btns=document.getElementById('donAmounts'); btns.innerHTML='';
+  ['5','10','25','50','custom'].forEach(function(a){
+    var b=document.createElement('button'); b.className='amt-btn'+(a===donAmount?' active':'');
+    b.textContent=a==='custom'?'Custom':sym+a; b.onclick=function(){window.selectAmt(b,a);};
+    btns.appendChild(b);
+  });
+  window.updateDonAmt();
+};
+window.selectAmt=function(btn,val){
+  donAmount=val;
+  document.querySelectorAll('.amt-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  document.getElementById('customAmtRow').style.display=val==='custom'?'block':'none';
+  window.updateDonAmt();
+};
+window.updateDonAmt=function(){
+  var sym=donCurrency==='EUR'?'€':'$';
+  var amt=donAmount==='custom'?(document.getElementById('customAmt').value||'?'):donAmount;
+  document.getElementById('revolutAmt').textContent=sym+amt;
+};
+document.getElementById('donateModal').addEventListener('click',function(e){if(e.target===this)window.closeDonate();});
+</script>
+
+<script>
+(function(){var _x="Ly8g4pSA4pSAIFBSTyBTVEFURSDilIDilIAKZnVuY3Rpb24gaXNQcm8oKXsgdHJ5eyByZXR1cm4gbG9jYWxTdG9yYWdlLmdldEl0ZW0oJ2NyeXB0ZXhfcHJv"
++"Jyk9PT0nVU5MT0NLRUQnOyB9Y2F0Y2goZSl7IHJldHVybiBmYWxzZTsgfSB9CgovLyDilIDilIAgQ09JTlMg4pSA4pSACnZhciBDT0lOU19GUkVFID0gWwog"
++"IHtpZDonYml0Y29pbicsc3ltOidCVEMnLG5hbWU6J0JpdGNvaW4nLGNvbG9yOicjZjc5MzFhJyxiZzoncmdiYSgyNDcsMTQ3LDI2LC4xNSknfSwKICB7aWQ6"
++"J2V0aGVyZXVtJyxzeW06J0VUSCcsbmFtZTonRXRoZXJldW0nLGNvbG9yOicjNjI3ZWVhJyxiZzoncmdiYSg5OCwxMjYsMjM0LC4xNSknfSwKICB7aWQ6J2Jp"
++"bmFuY2Vjb2luJyxzeW06J0JOQicsbmFtZTonQk5CJyxjb2xvcjonI2YzYmEyZicsYmc6J3JnYmEoMjQzLDE4Niw0NywuMTUpJ30sCiAge2lkOidzb2xhbmEn"
++"LHN5bTonU09MJyxuYW1lOidTb2xhbmEnLGNvbG9yOicjOTk0NWZmJyxiZzoncmdiYSgxNTMsNjksMjU1LC4xNSknfSwKICB7aWQ6J3JpcHBsZScsc3ltOidY"
++"UlAnLG5hbWU6J1hSUCcsY29sb3I6JyMwMGFhZTQnLGJnOidyZ2JhKDAsMTcwLDIyOCwuMTUpJ30sCiAge2lkOidjYXJkYW5vJyxzeW06J0FEQScsbmFtZTon"
++"Q2FyZGFubycsY29sb3I6JyM0ZGE3ZDgnLGJnOidyZ2JhKDc3LDE2NywyMTYsLjE1KSd9LAogIHtpZDonZG9nZWNvaW4nLHN5bTonRE9HRScsbmFtZTonRG9n"
++"ZWNvaW4nLGNvbG9yOicjYzJhNjMzJyxiZzoncmdiYSgxOTQsMTY2LDUxLC4xNSknfSwKICB7aWQ6J2F2YWxhbmNoZS0yJyxzeW06J0FWQVgnLG5hbWU6J0F2"
++"YWxhbmNoZScsY29sb3I6JyNlODQxNDInLGJnOidyZ2JhKDIzMiw2NSw2NiwuMTUpJ30KXTsKdmFyIENPSU5TX1BSTyA9IFsKICB7aWQ6J3BvbGthZG90Jyxz"
++"eW06J0RPVCcsbmFtZTonUG9sa2Fkb3QnLGNvbG9yOicjZTYwMDdhJyxiZzoncmdiYSgyMzAsMCwxMjIsLjE1KSd9LAogIHtpZDonY2hhaW5saW5rJyxzeW06"
++"J0xJTksnLG5hbWU6J0NoYWlubGluaycsY29sb3I6JyMyYTVhZGEnLGJnOidyZ2JhKDQyLDkwLDIxOCwuMTUpJ30sCiAge2lkOid1bmlzd2FwJyxzeW06J1VO"
++"SScsbmFtZTonVW5pc3dhcCcsY29sb3I6JyNmZjAwN2EnLGJnOidyZ2JhKDI1NSwwLDEyMiwuMTUpJ30sCiAge2lkOidsaXRlY29pbicsc3ltOidMVEMnLG5h"
++"bWU6J0xpdGVjb2luJyxjb2xvcjonI2JmYmJiYicsYmc6J3JnYmEoMTkxLDE4NywxODcsLjE1KSd9LAogIHtpZDonc3RlbGxhcicsc3ltOidYTE0nLG5hbWU6"
++"J1N0ZWxsYXInLGNvbG9yOicjMTRiNmU3JyxiZzoncmdiYSgyMCwxODIsMjMxLC4xNSknfSwKICB7aWQ6J21vbmVybycsc3ltOidYTVInLG5hbWU6J01vbmVy"
++"bycsY29sb3I6JyNmZjY2MDAnLGJnOidyZ2JhKDI1NSwxMDIsMCwuMTUpJ30sCiAge2lkOidjb3Ntb3MnLHN5bTonQVRPTScsbmFtZTonQ29zbW9zJyxjb2xv"
++"cjonIzZmNGNmZicsYmc6J3JnYmEoMTExLDc2LDI1NSwuMTUpJ30sCiAge2lkOiduZWFyJyxzeW06J05FQVInLG5hbWU6J05FQVIgUHJvdG9jb2wnLGNvbG9y"
++"OicjMDBjMDhiJyxiZzoncmdiYSgwLDE5MiwxMzksLjE1KSd9Cl07CgpmdW5jdGlvbiBnZXRDb2lucygpeyByZXR1cm4gaXNQcm8oKSA/IENPSU5TX0ZSRUUu"
++"Y29uY2F0KENPSU5TX1BSTykgOiBDT0lOU19GUkVFOyB9Cgp2YXIgTU9DSz17CiAgYml0Y29pbjp7dXNkOjU4NDMyLjEyLHVzZF8yNGhfY2hhbmdlOjIuNDUs"
++"dXNkX21hcmtldF9jYXA6MTE0MGU5fSwKICBldGhlcmV1bTp7dXNkOjMxMDIuNTUsdXNkXzI0aF9jaGFuZ2U6LTEuMjMsdXNkX21hcmtldF9jYXA6MzczZTl9"
++"LAogIGJpbmFuY2Vjb2luOnt1c2Q6NDEyLjgwLHVzZF8yNGhfY2hhbmdlOjAuODcsdXNkX21hcmtldF9jYXA6NjJlOX0sCiAgc29sYW5hOnt1c2Q6MTQ4LjMy"
++"LHVzZF8yNGhfY2hhbmdlOjUuMTIsdXNkX21hcmtldF9jYXA6NjVlOX0sCiAgcmlwcGxlOnt1c2Q6MC41ODIxLHVzZF8yNGhfY2hhbmdlOi0wLjQ0LHVzZF9t"
++"YXJrZXRfY2FwOjMzZTl9LAogIGNhcmRhbm86e3VzZDowLjQ1MTIsdXNkXzI0aF9jaGFuZ2U6MS4xMix1c2RfbWFya2V0X2NhcDoxNmU5fSwKICBkb2dlY29p"
++"bjp7dXNkOjAuMTQyMyx1c2RfMjRoX2NoYW5nZTotMi4zMSx1c2RfbWFya2V0X2NhcDoyMGU5fSwKICAnYXZhbGFuY2hlLTInOnt1c2Q6MzYuNTQsdXNkXzI0"
++"aF9jaGFuZ2U6My43Nyx1c2RfbWFya2V0X2NhcDoxNWU5fSwKICBwb2xrYWRvdDp7dXNkOjcuODIsdXNkXzI0aF9jaGFuZ2U6MS40NCx1c2RfbWFya2V0X2Nh"
++"cDoxMWU5fSwKICBjaGFpbmxpbms6e3VzZDoxNC4yMSx1c2RfMjRoX2NoYW5nZTotMC44OCx1c2RfbWFya2V0X2NhcDo4ZTl9LAogIHVuaXN3YXA6e3VzZDo5"
++"LjM0LHVzZF8yNGhfY2hhbmdlOjMuMTIsdXNkX21hcmtldF9jYXA6N2U5fSwKICBsaXRlY29pbjp7dXNkOjg0LjIwLHVzZF8yNGhfY2hhbmdlOjAuNTUsdXNk"
++"X21hcmtldF9jYXA6NmU5fSwKICBzdGVsbGFyOnt1c2Q6MC4xMTIsdXNkXzI0aF9jaGFuZ2U6LTEuMjAsdXNkX21hcmtldF9jYXA6M2U5fSwKICBtb25lcm86"
++"e3VzZDoxNjIuNDAsdXNkXzI0aF9jaGFuZ2U6Mi4xMCx1c2RfbWFya2V0X2NhcDozZTl9LAogIGNvc21vczp7dXNkOjYuODgsdXNkXzI0aF9jaGFuZ2U6MS44"
++"MCx1c2RfbWFya2V0X2NhcDozZTl9LAogIG5lYXI6e3VzZDo1LjQ0LHVzZF8yNGhfY2hhbmdlOjQuMjAsdXNkX21hcmtldF9jYXA6NmU5fQp9OwoKdmFyIFBS"
++"T1hZPSdodHRwczovL2NvcnNwcm94eS5pby8/JzsKdmFyIHByaWNlcz17fSwgcG9ydGZvbGlvPVtdOwp2YXIgYWxlcnRzPVtdOwp0cnl7IHBvcnRmb2xpbz1K"
++"U09OLnBhcnNlKGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdjcnlwdGV4X3BvcnQnKXx8J1tdJyk7IH1jYXRjaChlKXt9CnRyeXsgYWxlcnRzPUpTT04ucGFyc2Uo"
++"bG9jYWxTdG9yYWdlLmdldEl0ZW0oJ2NyeXB0ZXhfYWxlcnRzJyl8fCdbXScpOyB9Y2F0Y2goZSl7fQoKZnVuY3Rpb24gZm10KG4peyBpZihuPj0xZTkpcmV0"
++"dXJuJyQnKyhuLzFlOSkudG9GaXhlZCgyKSsnQic7IGlmKG4+PTFlNilyZXR1cm4nJCcrKG4vMWU2KS50b0ZpeGVkKDIpKydNJzsgcmV0dXJuJyQnK24udG9M"
++"b2NhbGVTdHJpbmcoJ2VuLVVTJyx7bWF4aW11bUZyYWN0aW9uRGlnaXRzOjJ9KTsgfQpmdW5jdGlvbiBmbXRQcmljZShuKXsgaWYobj49MTAwMClyZXR1cm4n"
++"JCcrbi50b0xvY2FsZVN0cmluZygnZW4tVVMnLHttYXhpbXVtRnJhY3Rpb25EaWdpdHM6Mn0pOyBpZihuPj0xKXJldHVybickJytuLnRvRml4ZWQoNCk7IHJl"
++"dHVybickJytuLnRvRml4ZWQoNik7IH0KZnVuY3Rpb24gZm10UGN0KG4peyByZXR1cm4obj49MD8nKyc6JycpK24udG9GaXhlZCgyKSsnJSc7IH0KCmFzeW5j"
++"IGZ1bmN0aW9uIGZldGNoUHJpY2VzKCl7CiAgdmFyIENPSU5TPWdldENvaW5zKCk7CiAgdmFyIGlkcz1DT0lOUy5tYXAoZnVuY3Rpb24oYyl7cmV0dXJuIGMu"
++"aWQ7fSkuam9pbignLCcpOwogIHZhciB1cmw9J2h0dHBzOi8vYXBpLmNvaW5nZWNrby5jb20vYXBpL3YzL3NpbXBsZS9wcmljZT9pZHM9JytpZHMrJyZ2c19j"
++"dXJyZW5jaWVzPXVzZCZpbmNsdWRlXzI0aHJfY2hhbmdlPXRydWUmaW5jbHVkZV9tYXJrZXRfY2FwPXRydWUnOwogIHZhciBvaz1mYWxzZTsKICB0cnl7IHZh"
++"ciByPWF3YWl0IGZldGNoKHVybCk7IGlmKHIub2spe3ByaWNlcz1hd2FpdCByLmpzb24oKTtvaz10cnVlO30gfWNhdGNoKGUpe30KICBpZighb2speyB0cnl7"
++"IHZhciByMj1hd2FpdCBmZXRjaChQUk9YWStlbmNvZGVVUklDb21wb25lbnQodXJsKSk7IGlmKHIyLm9rKXtwcmljZXM9YXdhaXQgcjIuanNvbigpO29rPXRy"
++"dWU7fSB9Y2F0Y2goZSl7fSB9CiAgaWYob2speyBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnbGFzdFVwZGF0ZScpLnRleHRDb250ZW50PSdVcGRhdGVkICcr"
++"bmV3IERhdGUoKS50b0xvY2FsZVRpbWVTdHJpbmcoKTsgY3J5cHRvTmV4dD0xMDsgfQogIGVsc2V7IHByaWNlcz1NT0NLOyBkb2N1bWVudC5nZXRFbGVtZW50"
++"QnlJZCgnbGFzdFVwZGF0ZScpLnRleHRDb250ZW50PSdEZW1vIChvZmZsaW5lKSc7IH0KICByZW5kZXJDb2lucygpOyByZW5kZXJUaWNrZXIoKTsgcmVuZGVy"
++"UG9ydGZvbGlvKCk7CiAgaWYoaXNQcm8oKSl7IGNoZWNrQWxlcnRzKCk7IHJlbmRlckFsZXJ0cygpOyByZW5kZXJBbmFseXRpY3MoKTsgfQp9CgpmdW5jdGlv"
++"biByZW5kZXJDb2lucygpewogIHZhciBDT0lOUz1nZXRDb2lucygpOwogIHZhciByb3dzPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdjb2luUm93cycpOwog"
++"IHZhciBzZWw9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2FkZENvaW4nKTsKICByb3dzLmlubmVySFRNTD0nJzsgc2VsLmlubmVySFRNTD0nJzsKICBDT0lO"
++"Uy5mb3JFYWNoKGZ1bmN0aW9uKGMsaSl7CiAgICB2YXIgcD1wcmljZXNbYy5pZF07IGlmKCFwKXJldHVybjsKICAgIHZhciB1cD1wLnVzZF8yNGhfY2hhbmdl"
++"Pj0wOwogICAgdmFyIHJvdz1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTsKICAgIHJvdy5jbGFzc05hbWU9J2NvaW4tcm93JzsKICAgIHJvdy5zdHls"
++"ZS5hbmltYXRpb25EZWxheT0oaSouMDQpKydzJzsKICAgIHZhciBwcm9CYWRnZT0oIWlzUHJvKCkmJmk+PTgpPyc8c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6"
++"XCdTcGFjZSBNb25vXCcsbW9ub3NwYWNlO2ZvbnQtc2l6ZTouNXJlbTtiYWNrZ3JvdW5kOnJnYmEoMjQ1LDE2NiwzNSwuMTUpO2JvcmRlcjoxcHggc29saWQg"
++"cmdiYSgyNDUsMTY2LDM1LC4zKTtjb2xvcjojZjVhNjIzO3BhZGRpbmc6MXB4IDVweDtib3JkZXItcmFkaXVzOjNweDttYXJnaW4tbGVmdDo0cHgiPlBSTzwv"
++"c3Bhbj4nOicnOwogICAgcm93LmlubmVySFRNTD0nPGRpdiBjbGFzcz0icmFuayI+JysoaSsxKSsnPC9kaXY+JwogICAgICArJzxkaXYgY2xhc3M9ImNpIj48"
++"ZGl2IGNsYXNzPSJjb2luLWljb24iIHN0eWxlPSJiYWNrZ3JvdW5kOicrYy5iZysnO2NvbG9yOicrYy5jb2xvcisnIj4nK2Muc3ltLnNsaWNlKDAsMykrJzwv"
++"ZGl2PicKICAgICAgKyc8ZGl2PjxkaXYgY2xhc3M9ImNuYW1lIj4nK2MubmFtZStwcm9CYWRnZSsnPC9kaXY+PGRpdiBjbGFzcz0iY3N5bSI+JytjLnN5bSsn"
++"PC9kaXY+PC9kaXY+PC9kaXY+JwogICAgICArJzxkaXYgY2xhc3M9InByaWNlIj4nK2ZtdFByaWNlKHAudXNkKSsnPC9kaXY+JwogICAgICArJzxkaXYgY2xh"
++"c3M9ImNoZyAnKyh1cD8ndXAnOidkbicpKyciPicrZm10UGN0KHAudXNkXzI0aF9jaGFuZ2UpKyc8L2Rpdj4nCiAgICAgICsnPGRpdiBjbGFzcz0ibWNhcCI+"
++"JytmbXQocC51c2RfbWFya2V0X2NhcHx8MCkrJzwvZGl2Pic7CiAgICByb3dzLmFwcGVuZENoaWxkKHJvdyk7CiAgICBzZWwuaW5uZXJIVE1MKz0nPG9wdGlv"
++"biB2YWx1ZT0iJytjLmlkKyciPicrYy5zeW0rJyAtICcrYy5uYW1lKyc8L29wdGlvbj4nOwogIH0pOwp9CgpmdW5jdGlvbiByZW5kZXJUaWNrZXIoKXsKICB2"
++"YXIgQ09JTlM9Z2V0Q29pbnMoKTsKICB2YXIgaXRlbXM9Q09JTlMubWFwKGZ1bmN0aW9uKGMpewogICAgdmFyIHA9cHJpY2VzW2MuaWRdOyBpZighcClyZXR1"
++"cm4nJzsKICAgIHZhciB1cD1wLnVzZF8yNGhfY2hhbmdlPj0wOwogICAgcmV0dXJuJzxzcGFuIGNsYXNzPSJ0LWl0ZW0iPjxiPicrYy5zeW0rJzwvYj4gJytm"
++"bXRQcmljZShwLnVzZCkrJyA8c3BhbiBjbGFzcz0iJysodXA/J3VwJzonZG4nKSsnIj4nK2ZtdFBjdChwLnVzZF8yNGhfY2hhbmdlKSsnPC9zcGFuPjwvc3Bh"
++"bj4nOwogIH0pLmpvaW4oJycpOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd0aWNrZXInKS5pbm5lckhUTUw9aXRlbXMraXRlbXM7Cn0KCmZ1bmN0aW9u"
++"IHNhdmVQb3J0Zm9saW8oKXsgdHJ5e2xvY2FsU3RvcmFnZS5zZXRJdGVtKCdjcnlwdGV4X3BvcnQnLEpTT04uc3RyaW5naWZ5KHBvcnRmb2xpbykpO31jYXRj"
++"aChlKXt9IH0KZnVuY3Rpb24gc2F2ZUFsZXJ0cygpeyB0cnl7bG9jYWxTdG9yYWdlLnNldEl0ZW0oJ2NyeXB0ZXhfYWxlcnRzJyxKU09OLnN0cmluZ2lmeShh"
++"bGVydHMpKTt9Y2F0Y2goZSl7fSB9CgpmdW5jdGlvbiByZW5kZXJQb3J0Zm9saW8oKXsKICB2YXIgZWw9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3BvcnRJ"
++"dGVtcycpOwogIGVsLmlubmVySFRNTD0nJzsKICBpZighcG9ydGZvbGlvLmxlbmd0aCl7CiAgICBlbC5pbm5lckhUTUw9JzxkaXYgY2xhc3M9ImVtcHR5LW1z"
++"ZyI+Tm8gaG9sZGluZ3MgeWV0LiBBZGQgYmVsb3cgXHUyMTkzPC9kaXY+JzsKICAgIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdwb3J0VG90YWwnKS50ZXh0"
++"Q29udGVudD0nJDAuMDAnOwogICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3BvcnRDaGFuZ2UnKS50ZXh0Q29udGVudD0nLS0nOwogICAgcmV0dXJuOwog"
++"IH0KICB2YXIgdG90YWxOb3c9MCx0b3RhbFllc3Q9MDsKICBwb3J0Zm9saW8uZm9yRWFjaChmdW5jdGlvbihoLGlkeCl7CiAgICB2YXIgQ09JTlM9Z2V0Q29p"
++"bnMoKTsKICAgIHZhciBjb2luPUNPSU5TLmZpbmQoZnVuY3Rpb24oYyl7cmV0dXJuIGMuaWQ9PT1oLmNvaW5JZDt9KTsKICAgIHZhciBwPXByaWNlc1toLmNv"
++"aW5JZF07IGlmKCFjb2lufHwhcClyZXR1cm47CiAgICB2YXIgdmFsPWguYW1vdW50KnAudXNkOwogICAgdmFyIHlwPXAudXNkLygxKyhwLnVzZF8yNGhfY2hh"
++"bmdlfHwwKS8xMDApOwogICAgdG90YWxOb3crPXZhbDsgdG90YWxZZXN0Kz1oLmFtb3VudCp5cDsKICAgIHZhciBwY3Q9KCh2YWwtaC5hbW91bnQqeXApLyho"
++"LmFtb3VudCp5cCkpKjEwMDsKICAgIHZhciB1cD1wY3Q+PTA7CiAgICB2YXIgaXRlbT1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTsKICAgIGl0ZW0u"
++"Y2xhc3NOYW1lPSdwb3J0LWl0ZW0nOwogICAgaXRlbS5pbm5lckhUTUw9JzxkaXYgY2xhc3M9InBpLWljb24iIHN0eWxlPSJiYWNrZ3JvdW5kOicrY29pbi5i"
++"ZysnO2NvbG9yOicrY29pbi5jb2xvcisnIj4nK2NvaW4uc3ltLnNsaWNlKDAsMykrJzwvZGl2PicKICAgICAgKyc8ZGl2PjxkaXYgY2xhc3M9InBpLW5hbWUi"
++"PicrY29pbi5uYW1lKyc8L2Rpdj48ZGl2IGNsYXNzPSJwaS1hbXQiPicraC5hbW91bnQrJyAnK2NvaW4uc3ltKyc8L2Rpdj48L2Rpdj4nCiAgICAgICsnPGRp"
++"diBjbGFzcz0icGktdmFsIj48ZGl2IGNsYXNzPSJwaS11c2QiPicrZm10UHJpY2UodmFsKSsnPC9kaXY+JwogICAgICArJzxkaXYgY2xhc3M9InBpLXBjdCAn"
++"Kyh1cD8ndXAnOidkbicpKyciPicrZm10UGN0KHBjdCkrJzwvZGl2PjwvZGl2PicKICAgICAgKyc8YnV0dG9uIGNsYXNzPSJwaS1ybSIgb25jbGljaz0icmVt"
++"b3ZlSG9sZGluZygnK2lkeCsnKSI+eDwvYnV0dG9uPic7CiAgICBlbC5hcHBlbmRDaGlsZChpdGVtKTsKICB9KTsKICB2YXIgZGlmZj10b3RhbE5vdy10b3Rh"
++"bFllc3Q7CiAgdmFyIHVwPWRpZmY+PTA7CiAgdmFyIHBjdD10b3RhbFllc3Q+MD8oZGlmZi90b3RhbFllc3QpKjEwMDowOwogIGRvY3VtZW50LmdldEVsZW1l"
++"bnRCeUlkKCdwb3J0VG90YWwnKS50ZXh0Q29udGVudD1mbXRQcmljZSh0b3RhbE5vdyk7CiAgdmFyIGNoZ0VsPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdw"
++"b3J0Q2hhbmdlJyk7CiAgY2hnRWwudGV4dENvbnRlbnQ9KHVwPycrJzonJykrZm10UHJpY2UoZGlmZikrJyB0b2RheSAoJytmbXRQY3QocGN0KSsnKSc7CiAg"
++"Y2hnRWwuY2xhc3NOYW1lPSdwb3J0LWNoYW5nZSAnKyh1cD8ndXAnOidkbicpOwp9CgpmdW5jdGlvbiBhZGRIb2xkaW5nKCl7CiAgdmFyIGNvaW5JZD1kb2N1"
++"bWVudC5nZXRFbGVtZW50QnlJZCgnYWRkQ29pbicpLnZhbHVlOwogIHZhciBhbW91bnQ9cGFyc2VGbG9hdChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYWRk"
++"QW10JykudmFsdWUpOwogIGlmKCFjb2luSWR8fGlzTmFOKGFtb3VudCl8fGFtb3VudDw9MClyZXR1cm47CiAgdmFyIGV4PXBvcnRmb2xpby5maW5kKGZ1bmN0"
++"aW9uKGgpe3JldHVybiBoLmNvaW5JZD09PWNvaW5JZDt9KTsKICBpZihleCkgZXguYW1vdW50PSsoZXguYW1vdW50K2Ftb3VudCkudG9GaXhlZCg4KTsKICBl"
++"bHNlIHBvcnRmb2xpby5wdXNoKHtjb2luSWQ6Y29pbklkLGFtb3VudDphbW91bnR9KTsKICBzYXZlUG9ydGZvbGlvKCk7IGRvY3VtZW50LmdldEVsZW1lbnRC"
++"eUlkKCdhZGRBbXQnKS52YWx1ZT0nJzsKICByZW5kZXJQb3J0Zm9saW8oKTsKICBpZihpc1BybygpKXsgcmVuZGVyQW5hbHl0aWNzKCk7IH0KfQpmdW5jdGlv"
++"biByZW1vdmVIb2xkaW5nKGlkeCl7IHBvcnRmb2xpby5zcGxpY2UoaWR4LDEpOyBzYXZlUG9ydGZvbGlvKCk7IHJlbmRlclBvcnRmb2xpbygpOyBpZihpc1By"
++"bygpKXJlbmRlckFuYWx5dGljcygpOyB9CgovLyDilIDilIAgRk9SRVgg4pSA4pSACnZhciBmb3JleFJhdGVzPXt9LGZvcmV4U291cmNlPScnOwpmdW5jdGlv"
++"biBhcHBseVJhdGVzKGgsZSl7IGZvcmV4UmF0ZXMuVVNEX0hVRj1oO2ZvcmV4UmF0ZXMuVVNEX0VVUj1lO2ZvcmV4UmF0ZXMuRVVSX1VTRD0xL2U7Zm9yZXhS"
++"YXRlcy5FVVJfSFVGPWgvZTtmb3JleFJhdGVzLkhVRl9VU0Q9MS9oO2ZvcmV4UmF0ZXMuSFVGX0VVUj1lL2g7IH0KYXN5bmMgZnVuY3Rpb24gZmV0Y2hGb3Jl"
++"eCgpewogIHZhciBvaz1mYWxzZTsKICB0cnl7IHZhciByPWF3YWl0IGZldGNoKCdodHRwczovL29wZW4uZXItYXBpLmNvbS92Ni9sYXRlc3QvVVNEJyk7IHZh"
++"ciBkPWF3YWl0IHIuanNvbigpOyBpZihkLnJlc3VsdD09PSdzdWNjZXNzJyYmZC5yYXRlcyl7YXBwbHlSYXRlcyhkLnJhdGVzLkhVRixkLnJhdGVzLkVVUik7"
++"Zm9yZXhTb3VyY2U9J0V4Y2hhbmdlUmF0ZS1BUEknO29rPXRydWU7fSB9Y2F0Y2goZSl7fQogIGlmKCFvayl7IHRyeXsgdmFyIHIyPWF3YWl0IGZldGNoKFBS"
++"T1hZK2VuY29kZVVSSUNvbXBvbmVudCgnaHR0cHM6Ly9vcGVuLmVyLWFwaS5jb20vdjYvbGF0ZXN0L1VTRCcpKTsgdmFyIGQyPWF3YWl0IHIyLmpzb24oKTsg"
++"aWYoZDIucmVzdWx0PT09J3N1Y2Nlc3MnJiZkMi5yYXRlcyl7YXBwbHlSYXRlcyhkMi5yYXRlcy5IVUYsZDIucmF0ZXMuRVVSKTtmb3JleFNvdXJjZT0nRXhj"
++"aGFuZ2VSYXRlLUFQSSAocHJveHkpJztvaz10cnVlO30gfWNhdGNoKGUpe30gfQogIGlmKCFvayl7IHRyeXsgdmFyIHIzPWF3YWl0IGZldGNoKCdodHRwczov"
++"L2FwaS5mcmFua2Z1cnRlci5hcHAvbGF0ZXN0P2Zyb209VVNEJnRvPUhVRixFVVInKTsgdmFyIGQzPWF3YWl0IHIzLmpzb24oKTsgaWYoZDMucmF0ZXMpe2Fw"
++"cGx5UmF0ZXMoZDMucmF0ZXMuSFVGLGQzLnJhdGVzLkVVUik7Zm9yZXhTb3VyY2U9J0VDQiBGcmFua2Z1cnRlcic7b2s9dHJ1ZTt9IH1jYXRjaChlKXt9IH0K"
++"ICBpZighb2speyB0cnl7IHZhciByND1hd2FpdCBmZXRjaChQUk9YWStlbmNvZGVVUklDb21wb25lbnQoJ2h0dHBzOi8vYXBpLmZyYW5rZnVydGVyLmFwcC9s"
++"YXRlc3Q/ZnJvbT1VU0QmdG89SFVGLEVVUicpKTsgdmFyIGQ0PWF3YWl0IHI0Lmpzb24oKTsgaWYoZDQucmF0ZXMpe2FwcGx5UmF0ZXMoZDQucmF0ZXMuSFVG"
++"LGQ0LnJhdGVzLkVVUik7Zm9yZXhTb3VyY2U9J0VDQiAocHJveHkpJztvaz10cnVlO30gfWNhdGNoKGUpe30gfQogIGlmKCFvayl7IHRyeXsgdmFyIHI1PWF3"
++"YWl0IGZldGNoKCdodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL0BmYXdhemFobWVkMC9jdXJyZW5jeS1hcGlAbGF0ZXN0L3YxL2N1cnJlbmNpZXMvdXNk"
++"Lmpzb24nKTsgdmFyIGQ1PWF3YWl0IHI1Lmpzb24oKTsgaWYoZDUudXNkKXthcHBseVJhdGVzKGQ1LnVzZC5odWYsZDUudXNkLmV1cik7Zm9yZXhTb3VyY2U9"
++"J0NETiBDdXJyZW5jeS1BUEknO29rPXRydWU7fSB9Y2F0Y2goZSl7fSB9CiAgaWYoIW9rKXthcHBseVJhdGVzKDMwOS4zMywwLjg1MzgpO2ZvcmV4U291cmNl"
++"PSdDYWNoZWQgTWF5IDIwMjYnO30KICBmb3JleE5leHQ9NjA7IHJlbmRlckZvcmV4KCk7Cn0KZnVuY3Rpb24gcmVuZGVyRm9yZXgoKXsKICB2YXIgZWw9ZG9j"
++"dW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2ZvcmV4UmF0ZXMnKTsgZWwuaW5uZXJIVE1MPScnOwogIHZhciBzcmM9ZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2"
++"Jyk7CiAgc3JjLnN0eWxlLmNzc1RleHQ9ImZvbnQtZmFtaWx5OidTcGFjZSBNb25vJyxtb25vc3BhY2U7Zm9udC1zaXplOi41NXJlbTtjb2xvcjp2YXIoLS1t"
++"dXRlZCk7bWFyZ2luLWJvdHRvbTo4cHg7ZGlzcGxheTpmbGV4O2p1c3RpZnktY29udGVudDpzcGFjZS1iZXR3ZWVuIjsKICBzcmMuaW5uZXJIVE1MPSc8c3Bh"
++"bj4nK2ZvcmV4U291cmNlKyc8L3NwYW4+PHNwYW4+JytuZXcgRGF0ZSgpLnRvTG9jYWxlVGltZVN0cmluZygpKyc8L3NwYW4+JzsKICBlbC5hcHBlbmRDaGls"
++"ZChzcmMpOwogIHZhciBwYWlycz1bCiAgICB7a2V5OidVU0RfSFVGJyxmcm9tOidVU0QnLHRvOidIVUYnLGxhYmVsOidVU0QgXHUyMTkyIEhVRicsZmxhZzon"
++"XHVkODNjXHVkZGZhXHVkODNjXHVkZGY4XHUyMTkyXHVkODNjXHVkZGVkXHVkODNjXHVkZGZhJyxjb2xvcjonI2Y1YTYyMycsYmc6J3JnYmEoMjQ1LDE2Niwz"
++"NSwuMTIpJ30sCiAgICB7a2V5OidIVUZfVVNEJyxmcm9tOidIVUYnLHRvOidVU0QnLGxhYmVsOidIVUYgXHUyMTkyIFVTRCcsZmxhZzonXHVkODNjXHVkZGVk"
++"XHVkODNjXHVkZGZhXHUyMTkyXHVkODNjXHVkZGZhXHVkODNjXHVkZGY4Jyxjb2xvcjonI2Y1YTYyMycsYmc6J3JnYmEoMjQ1LDE2NiwzNSwuMDgpJ30sCiAg"
++"ICB7a2V5OidFVVJfSFVGJyxmcm9tOidFVVInLHRvOidIVUYnLGxhYmVsOidFVVIgXHUyMTkyIEhVRicsZmxhZzonXHVkODNjXHVkZGVhXHVkODNjXHVkZGZh"
++"XHUyMTkyXHVkODNjXHVkZGVkXHVkODNjXHVkZGZhJyxjb2xvcjonIzRkYTdkOCcsYmc6J3JnYmEoNzcsMTY3LDIxNiwuMTIpJ30sCiAgICB7a2V5OidIVUZf"
++"RVVSJyxmcm9tOidIVUYnLHRvOidFVVInLGxhYmVsOidIVUYgXHUyMTkyIEVVUicsZmxhZzonXHVkODNjXHVkZGVkXHVkODNjXHVkZGZhXHUyMTkyXHVkODNj"
++"XHVkZGVhXHVkODNjXHVkZGZhJyxjb2xvcjonIzRkYTdkOCcsYmc6J3JnYmEoNzcsMTY3LDIxNiwuMDgpJ30sCiAgICB7a2V5OidFVVJfVVNEJyxmcm9tOidF"
++"VVInLHRvOidVU0QnLGxhYmVsOidFVVIgXHUyMTkyIFVTRCcsZmxhZzonXHVkODNjXHVkZGVhXHVkODNjXHVkZGZhXHUyMTkyXHVkODNjXHVkZGZhXHVkODNj"
++"XHVkZGY4Jyxjb2xvcjonIzAwZThhMCcsYmc6J3JnYmEoMCwyMzIsMTYwLC4xMiknfSwKICAgIHtrZXk6J1VTRF9FVVInLGZyb206J1VTRCcsdG86J0VVUics"
++"bGFiZWw6J1VTRCBcdTIxOTIgRVVSJyxmbGFnOidcdWQ4M2NcdWRkZmFcdWQ4M2NcdWRkZjhcdTIxOTJcdWQ4M2NcdWRkZWFcdWQ4M2NcdWRkZmEnLGNvbG9y"
++"OicjMDBlOGEwJyxiZzoncmdiYSgwLDIzMiwxNjAsLjA4KSd9CiAgXTsKICBwYWlycy5mb3JFYWNoKGZ1bmN0aW9uKHApewogICAgdmFyIHJhdGU9Zm9yZXhS"
++"YXRlc1twLmtleV07IGlmKHJhdGU9PW51bGwpcmV0dXJuOwogICAgdmFyIGQ9cmF0ZTwxPzY6cmF0ZTwxMD80OjI7CiAgICB2YXIgaXRlbT1kb2N1bWVudC5j"
++"cmVhdGVFbGVtZW50KCdkaXYnKTsgaXRlbS5jbGFzc05hbWU9J3BvcnQtaXRlbSc7CiAgICBpdGVtLmlubmVySFRNTD0nPGRpdiBjbGFzcz0icGktaWNvbiIg"
++"c3R5bGU9ImJhY2tncm91bmQ6JytwLmJnKyc7Y29sb3I6JytwLmNvbG9yKyc7Zm9udC1zaXplOi44NXJlbTt3aWR0aDozNHB4O2hlaWdodDozNHB4O2xldHRl"
++"ci1zcGFjaW5nOi0ycHgiPicrcC5mbGFnKyc8L2Rpdj4nCiAgICAgICsnPGRpdj48ZGl2IGNsYXNzPSJwaS1uYW1lIiBzdHlsZT0iZm9udC1zaXplOi43OHJl"
++"bSI+JytwLmxhYmVsKyc8L2Rpdj48ZGl2IGNsYXNzPSJwaS1hbXQiPjEgJytwLmZyb20rJzwvZGl2PjwvZGl2PicKICAgICAgKyc8ZGl2IGNsYXNzPSJwaS12"
++"YWwiPjxkaXYgY2xhc3M9InBpLXVzZCIgc3R5bGU9ImNvbG9yOicrcC5jb2xvcisnIj4nK3JhdGUudG9Mb2NhbGVTdHJpbmcoJ2VuLVVTJyx7bWluaW11bUZy"
++"YWN0aW9uRGlnaXRzOmQsbWF4aW11bUZyYWN0aW9uRGlnaXRzOmR9KSsnPC9kaXY+PGRpdiBjbGFzcz0icGktYW10Ij4nK3AudG8rJzwvZGl2PjwvZGl2Pic7"
++"CiAgICBlbC5hcHBlbmRDaGlsZChpdGVtKTsKICB9KTsKfQoKLy8g4pSA4pSAIFBSTzogUFJJQ0UgQUxFUlRTIOKUgOKUgApmdW5jdGlvbiBjaGVja0FsZXJ0"
++"cygpewogIGFsZXJ0cy5mb3JFYWNoKGZ1bmN0aW9uKGEpewogICAgdmFyIHA9cHJpY2VzW2EuY29pbklkXTsgaWYoIXApcmV0dXJuOwogICAgdmFyIGN1cj1w"
++"LnVzZDsKICAgIGlmKCFhLnRyaWdnZXJlZCl7CiAgICAgIGlmKChhLnR5cGU9PT0nYWJvdmUnJiZjdXI+PWEudGFyZ2V0KXx8KGEudHlwZT09PSdiZWxvdycm"
++"JmN1cjw9YS50YXJnZXQpKXsKICAgICAgICBhLnRyaWdnZXJlZD10cnVlOyBzYXZlQWxlcnRzKCk7CiAgICAgICAgc2hvd05vdGlmaWNhdGlvbignXHVkODNk"
++"XHVkZDE0ICcrYS5zeW0rJyBoaXQgJytmbXRQcmljZShhLnRhcmdldCkrJyEgTm93OiAnK2ZtdFByaWNlKGN1cikpOwogICAgICB9CiAgICB9CiAgfSk7Cn0K"
++"ZnVuY3Rpb24gc2hvd05vdGlmaWNhdGlvbihtc2cpewogIHZhciBuPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpOwogIG4uc3R5bGUuY3NzVGV4dD0n"
++"cG9zaXRpb246Zml4ZWQ7dG9wOjIwcHg7cmlnaHQ6MjBweDt6LWluZGV4Ojk5OTk5O2JhY2tncm91bmQ6IzBjMTAxODtib3JkZXI6MXB4IHNvbGlkIHZhcigt"
++"LWFjY2VudCk7Ym9yZGVyLXJhZGl1czoxMnB4O3BhZGRpbmc6MTRweCAxOHB4O2ZvbnQtZmFtaWx5OlwnU3BhY2UgTW9ub1wnLG1vbm9zcGFjZTtmb250LXNp"
++"emU6LjcycmVtO2NvbG9yOnZhcigtLWFjY2VudCk7bWF4LXdpZHRoOjI4MHB4O2JveC1zaGFkb3c6MCA4cHggMzJweCByZ2JhKDAsMjMyLDE2MCwuMik7YW5p"
++"bWF0aW9uOnJpc2UgLjNzIGVhc2UnOwogIG4udGV4dENvbnRlbnQ9bXNnOwogIGRvY3VtZW50LmJvZHkuYXBwZW5kQ2hpbGQobik7CiAgc2V0VGltZW91dChm"
++"dW5jdGlvbigpe24ucmVtb3ZlKCk7fSw1MDAwKTsKfQpmdW5jdGlvbiByZW5kZXJBbGVydHMoKXsKICB2YXIgZWw9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQo"
++"J2FsZXJ0c0xpc3QnKTsgaWYoIWVsKXJldHVybjsKICBlbC5pbm5lckhUTUw9Jyc7CiAgaWYoIWFsZXJ0cy5sZW5ndGgpeyBlbC5pbm5lckhUTUw9JzxkaXYg"
++"Y2xhc3M9ImVtcHR5LW1zZyI+Tm8gYWxlcnRzIHNldC48L2Rpdj4nOyByZXR1cm47IH0KICBhbGVydHMuZm9yRWFjaChmdW5jdGlvbihhLGkpewogICAgdmFy"
++"IGl0ZW09ZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7IGl0ZW0uY2xhc3NOYW1lPSdwb3J0LWl0ZW0nOwogICAgaXRlbS5zdHlsZS5vcGFjaXR5PWEu"
++"dHJpZ2dlcmVkPycuNSc6JzEnOwogICAgaXRlbS5pbm5lckhUTUw9JzxkaXYgY2xhc3M9InBpLWljb24iIHN0eWxlPSJiYWNrZ3JvdW5kOnJnYmEoMCwyMzIs"
++"MTYwLC4xKTtjb2xvcjp2YXIoLS1hY2NlbnQpO2ZvbnQtc2l6ZTouN3JlbSI+JythLnN5bSsnPC9kaXY+JwogICAgICArJzxkaXY+PGRpdiBjbGFzcz0icGkt"
++"bmFtZSIgc3R5bGU9ImZvbnQtc2l6ZTouNzhyZW0iPicrYS5zeW0rJyAnKyhhLnR5cGU9PT0nYWJvdmUnPydcdTIxOTcgYWJvdmUnOidcdTIxOTggYmVsb3cn"
++"KSsnICcrZm10UHJpY2UoYS50YXJnZXQpKyc8L2Rpdj4nCiAgICAgICsnPGRpdiBjbGFzcz0icGktYW10Ij4nKyhhLnRyaWdnZXJlZD8nXHUyNzA1IFRyaWdn"
++"ZXJlZCc6J1dhdGNoaW5nLi4uJykrJzwvZGl2PjwvZGl2PicKICAgICAgKyc8YnV0dG9uIGNsYXNzPSJwaS1ybSIgb25jbGljaz0icmVtb3ZlQWxlcnQoJytp"
++"KycpIiBzdHlsZT0ibWFyZ2luLWxlZnQ6YXV0byI+eDwvYnV0dG9uPic7CiAgICBlbC5hcHBlbmRDaGlsZChpdGVtKTsKICB9KTsKfQpmdW5jdGlvbiBhZGRB"
++"bGVydCgpewogIGlmKCFpc1BybygpKXsgd2luZG93Lm9wZW5Qcm9Nb2RhbCgpOyByZXR1cm47IH0KICB2YXIgY29pbklkPWRvY3VtZW50LmdldEVsZW1lbnRC"
++"eUlkKCdhbGVydENvaW4nKS52YWx1ZTsKICB2YXIgdGFyZ2V0PXBhcnNlRmxvYXQoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2FsZXJ0UHJpY2UnKS52YWx1"
++"ZSk7CiAgdmFyIHR5cGU9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2FsZXJ0VHlwZScpLnZhbHVlOwogIGlmKCFjb2luSWR8fGlzTmFOKHRhcmdldCl8fHRh"
++"cmdldDw9MClyZXR1cm47CiAgdmFyIENPSU5TPWdldENvaW5zKCk7CiAgdmFyIGNvaW49Q09JTlMuZmluZChmdW5jdGlvbihjKXtyZXR1cm4gYy5pZD09PWNv"
++"aW5JZDt9KTsKICBhbGVydHMucHVzaCh7Y29pbklkOmNvaW5JZCxzeW06Y29pbj9jb2luLnN5bTpjb2luSWQsdGFyZ2V0OnRhcmdldCx0eXBlOnR5cGUsdHJp"
++"Z2dlcmVkOmZhbHNlfSk7CiAgc2F2ZUFsZXJ0cygpOyBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYWxlcnRQcmljZScpLnZhbHVlPScnOyByZW5kZXJBbGVy"
++"dHMoKTsKfQpmdW5jdGlvbiByZW1vdmVBbGVydChpKXsgYWxlcnRzLnNwbGljZShpLDEpOyBzYXZlQWxlcnRzKCk7IHJlbmRlckFsZXJ0cygpOyB9CgovLyDi"
++"lIDilIAgUFJPOiBBTkFMWVRJQ1Mg4pSA4pSACmZ1bmN0aW9uIHJlbmRlckFuYWx5dGljcygpewogIHZhciBlbD1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgn"
++"YW5hbHl0aWNzUGFuZWwnKTsgaWYoIWVsKXJldHVybjsKICBlbC5pbm5lckhUTUw9Jyc7CiAgaWYoIXBvcnRmb2xpby5sZW5ndGgpeyBlbC5pbm5lckhUTUw9"
++"JzxkaXYgY2xhc3M9ImVtcHR5LW1zZyI+QWRkIGhvbGRpbmdzIHRvIHNlZSBhbmFseXRpY3MuPC9kaXY+JzsgcmV0dXJuOyB9CiAgdmFyIENPSU5TPWdldENv"
++"aW5zKCk7CiAgdmFyIHRvdGFsVmFsPTA7CiAgdmFyIGl0ZW1zPVtdOwogIHBvcnRmb2xpby5mb3JFYWNoKGZ1bmN0aW9uKGgpewogICAgdmFyIGNvaW49Q09J"
++"TlMuZmluZChmdW5jdGlvbihjKXtyZXR1cm4gYy5pZD09PWguY29pbklkO30pOwogICAgdmFyIHA9cHJpY2VzW2guY29pbklkXTsgaWYoIWNvaW58fCFwKXJl"
++"dHVybjsKICAgIHZhciB2YWw9aC5hbW91bnQqcC51c2Q7CiAgICB2YXIgeXA9cC51c2QvKDErKHAudXNkXzI0aF9jaGFuZ2V8fDApLzEwMCk7CiAgICB2YXIg"
++"cG5sPXZhbC0oaC5hbW91bnQqeXApOwogICAgdG90YWxWYWwrPXZhbDsKICAgIGl0ZW1zLnB1c2goe2NvaW46Y29pbix2YWw6dmFsLHBjdDpwLnVzZF8yNGhf"
++"Y2hhbmdlLHBubDpwbmwsYW1vdW50OmguYW1vdW50LHByaWNlOnAudXNkfSk7CiAgfSk7CiAgaWYoIXRvdGFsVmFsKXsgZWwuaW5uZXJIVE1MPSc8ZGl2IGNs"
++"YXNzPSJlbXB0eS1tc2ciPk5vIGRhdGEuPC9kaXY+JzsgcmV0dXJuOyB9CgogIC8vIEJlc3QgJiB3b3JzdCBwZXJmb3JtZXIKICB2YXIgYmVzdD1pdGVtcy5z"
++"bGljZSgpLnNvcnQoZnVuY3Rpb24oYSxiKXtyZXR1cm4gYi5wY3QtYS5wY3Q7fSlbMF07CiAgdmFyIHdvcnN0PWl0ZW1zLnNsaWNlKCkuc29ydChmdW5jdGlv"
++"bihhLGIpe3JldHVybiBhLnBjdC1iLnBjdDt9KVswXTsKCiAgLy8gVG90YWwgUG5MCiAgdmFyIHRvdGFsUG5sPWl0ZW1zLnJlZHVjZShmdW5jdGlvbihzLGkp"
++"e3JldHVybiBzK2kucG5sO30sMCk7CiAgdmFyIHBubFVwPXRvdGFsUG5sPj0wOwoKICAvLyBBbGxvY2F0aW9uIGJhcnMKICB2YXIgYWxsb2NIdG1sPWl0ZW1z"
++"Lm1hcChmdW5jdGlvbihpdCl7CiAgICB2YXIgcGN0PShpdC52YWwvdG90YWxWYWwqMTAwKS50b0ZpeGVkKDEpOwogICAgcmV0dXJuICc8ZGl2IHN0eWxlPSJt"
++"YXJnaW4tYm90dG9tOjEwcHgiPicKICAgICAgKyc8ZGl2IHN0eWxlPSJkaXNwbGF5OmZsZXg7anVzdGlmeS1jb250ZW50OnNwYWNlLWJldHdlZW47Zm9udC1m"
++"YW1pbHk6XCdTcGFjZSBNb25vXCcsbW9ub3NwYWNlO2ZvbnQtc2l6ZTouNjJyZW07bWFyZ2luLWJvdHRvbTo0cHgiPicKICAgICAgKyc8c3BhbiBzdHlsZT0i"
++"Y29sb3I6JytpdC5jb2luLmNvbG9yKyciPicraXQuY29pbi5zeW0rJzwvc3Bhbj4nCiAgICAgICsnPHNwYW4gc3R5bGU9ImNvbG9yOnZhcigtLW11dGVkMiki"
++"PicrcGN0KyclICZtaWRkb3Q7ICcrZm10UHJpY2UoaXQudmFsKSsnPC9zcGFuPjwvZGl2PicKICAgICAgKyc8ZGl2IHN0eWxlPSJiYWNrZ3JvdW5kOnZhcigt"
++"LWJvcmRlcik7Ym9yZGVyLXJhZGl1czozcHg7aGVpZ2h0OjVweDtvdmVyZmxvdzpoaWRkZW4iPicKICAgICAgKyc8ZGl2IHN0eWxlPSJoZWlnaHQ6MTAwJTt3"
++"aWR0aDonK3BjdCsnJTtiYWNrZ3JvdW5kOicraXQuY29pbi5jb2xvcisnO2JvcmRlci1yYWRpdXM6M3B4O3RyYW5zaXRpb246d2lkdGggLjZzIGVhc2UiPjwv"
++"ZGl2PjwvZGl2PjwvZGl2Pic7CiAgfSkuam9pbignJyk7CgogIGVsLmlubmVySFRNTD0KICAgIC8vIFN0YXRzIHJvdwogICAgJzxkaXYgc3R5bGU9ImRpc3Bs"
++"YXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyIDFmciAxZnI7Z2FwOjhweDttYXJnaW4tYm90dG9tOjE2cHgiPicKICAgICsnPGRpdiBzdHlsZT0i"
++"YmFja2dyb3VuZDp2YXIoLS1zdXJmYWNlMik7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1ib3JkZXIpO2JvcmRlci1yYWRpdXM6OXB4O3BhZGRpbmc6MTBweDt0"
++"ZXh0LWFsaWduOmNlbnRlciI+JwogICAgKyc8ZGl2IHN0eWxlPSJmb250LWZhbWlseTpcJ1NwYWNlIE1vbm9cJyxtb25vc3BhY2U7Zm9udC1zaXplOi41NXJl"
++"bTtjb2xvcjp2YXIoLS1tdXRlZCk7bGV0dGVyLXNwYWNpbmc6MnB4O21hcmdpbi1ib3R0b206NHB4Ij5UT0RBWSBQTkw8L2Rpdj4nCiAgICArJzxkaXYgc3R5"
++"bGU9ImZvbnQtZmFtaWx5OlwnU3BhY2UgTW9ub1wnLG1vbm9zcGFjZTtmb250LXNpemU6Ljc1cmVtO2ZvbnQtd2VpZ2h0OjcwMDtjb2xvcjonKyhwbmxVcD8n"
++"dmFyKC0tZ3JlZW4pJzondmFyKC0tcmVkKScpKyciPicrKChwbmxVcD8nKyc6JycpK2ZtdFByaWNlKHRvdGFsUG5sKSkrJzwvZGl2PjwvZGl2PicKICAgICsn"
++"PGRpdiBzdHlsZT0iYmFja2dyb3VuZDp2YXIoLS1zdXJmYWNlMik7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1ib3JkZXIpO2JvcmRlci1yYWRpdXM6OXB4O3Bh"
++"ZGRpbmc6MTBweDt0ZXh0LWFsaWduOmNlbnRlciI+JwogICAgKyc8ZGl2IHN0eWxlPSJmb250LWZhbWlseTpcJ1NwYWNlIE1vbm9cJyxtb25vc3BhY2U7Zm9u"
++"dC1zaXplOi41NXJlbTtjb2xvcjp2YXIoLS1tdXRlZCk7bGV0dGVyLXNwYWNpbmc6MnB4O21hcmdpbi1ib3R0b206NHB4Ij5CRVNUPC9kaXY+JwogICAgKyc8"
++"ZGl2IHN0eWxlPSJmb250LWZhbWlseTpcJ1NwYWNlIE1vbm9cJyxtb25vc3BhY2U7Zm9udC1zaXplOi43NXJlbTtmb250LXdlaWdodDo3MDA7Y29sb3I6dmFy"
++"KC0tZ3JlZW4pIj4nKyhiZXN0P2Jlc3QuY29pbi5zeW0rJyAnK2ZtdFBjdChiZXN0LnBjdCk6Jy0tJykrJzwvZGl2PjwvZGl2PicKICAgICsnPGRpdiBzdHls"
++"ZT0iYmFja2dyb3VuZDp2YXIoLS1zdXJmYWNlMik7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1ib3JkZXIpO2JvcmRlci1yYWRpdXM6OXB4O3BhZGRpbmc6MTBw"
++"eDt0ZXh0LWFsaWduOmNlbnRlciI+JwogICAgKyc8ZGl2IHN0eWxlPSJmb250LWZhbWlseTpcJ1NwYWNlIE1vbm9cJyxtb25vc3BhY2U7Zm9udC1zaXplOi41"
++"NXJlbTtjb2xvcjp2YXIoLS1tdXRlZCk7bGV0dGVyLXNwYWNpbmc6MnB4O21hcmdpbi1ib3R0b206NHB4Ij5XT1JTVDwvZGl2PicKICAgICsnPGRpdiBzdHls"
++"ZT0iZm9udC1mYW1pbHk6XCdTcGFjZSBNb25vXCcsbW9ub3NwYWNlO2ZvbnQtc2l6ZTouNzVyZW07Zm9udC13ZWlnaHQ6NzAwO2NvbG9yOnZhcigtLXJlZCki"
++"PicrKHdvcnN0P3dvcnN0LmNvaW4uc3ltKycgJytmbXRQY3Qod29yc3QucGN0KTonLS0nKSsnPC9kaXY+PC9kaXY+JwogICAgKyc8L2Rpdj4nCiAgICAvLyBB"
++"bGxvY2F0aW9uCiAgICArJzxkaXYgc3R5bGU9ImZvbnQtZmFtaWx5OlwnU3BhY2UgTW9ub1wnLG1vbm9zcGFjZTtmb250LXNpemU6LjU4cmVtO2xldHRlci1z"
++"cGFjaW5nOjJweDtjb2xvcjp2YXIoLS1tdXRlZCk7bWFyZ2luLWJvdHRvbToxMHB4Ij5BTExPQ0FUSU9OPC9kaXY+JwogICAgK2FsbG9jSHRtbDsKfQoKLy8g"
++"4pSA4pSAIENPVU5URE9XTiDilIDilIAKdmFyIGNyeXB0b05leHQ9MTAsIGZvcmV4TmV4dD02MDsKc2V0SW50ZXJ2YWwoZnVuY3Rpb24oKXsKICBjcnlwdG9O"
++"ZXh0LS07IGZvcmV4TmV4dC0tOwogIGlmKGNyeXB0b05leHQ8PTApIGNyeXB0b05leHQ9MTA7CiAgaWYoZm9yZXhOZXh0PD0wKSBmb3JleE5leHQ9NjA7CiAg"
++"dmFyIGVsPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdsYXN0VXBkYXRlJyk7CiAgaWYoZWwpIGVsLnRleHRDb250ZW50PSdDcnlwdG8gaW4gJytjcnlwdG9O"
++"ZXh0KydzIHwgRm9yZXggaW4gJytmb3JleE5leHQrJ3MnOwp9LDEwMDApOwoKLy8g4pSA4pSAIFRVVE9SSUFMIOKUgOKUgAp2YXIgVFVUT1JJQUxfU1RFUFM9"
++"WwogIHtpY29uOicwMScsdGl0bGU6J1doYXQgaXMgQ3J5cHRvPycsY29sb3I6JyMwMGI0ZDgnLGNvbnRlbnQ6WydDcnlwdG9jdXJyZW5jeSBpcyBkaWdpdGFs"
++"IG1vbmV5IHNlY3VyZWQgYnkgY3J5cHRvZ3JhcGh5IG9uIGEgZGVjZW50cmFsaXplZCBuZXR3b3JrIGNhbGxlZCBhIGJsb2NrY2hhaW4uJywnVW5saWtlIHJl"
++"Z3VsYXIgbW9uZXksIG5vIGJhbmsgb3IgZ292ZXJubWVudCBjb250cm9scyBpdC4gVHJhbnNhY3Rpb25zIGFyZSByZWNvcmRlZCBvbiB0aG91c2FuZHMgb2Yg"
++"Y29tcHV0ZXJzIHdvcmxkd2lkZS4nLCdUaGUgbW9zdCB3ZWxsLWtub3duIGNyeXB0b3MgYXJlIEJpdGNvaW4gKEJUQyksIGNyZWF0ZWQgaW4gMjAwOSwgYW5k"
++"IEV0aGVyZXVtIChFVEgpLCBrbm93biBmb3Igc21hcnQgY29udHJhY3RzLiddLHRpcDonVGhpbmsgb2YgQml0Y29pbiBsaWtlIGRpZ2l0YWwgZ29sZCDigJQg"
++"bGltaXRlZCBzdXBwbHksIGdsb2JhbGx5IHRyYW5zZmVyYWJsZSwgYW5kIG5vdCBjb250cm9sbGVkIGJ5IGFueW9uZS4nLHRpcENvbG9yOicjZjVhNjIzJ30s"
++"CiAge2ljb246JzAyJyx0aXRsZTonSG93IHRvIEJ1eSBDcnlwdG8nLGNvbG9yOicjMDBlOGEwJyxjb250ZW50OlsnU3RlcCAxOiBDaG9vc2UgYSByZXB1dGFi"
++"bGUgZXhjaGFuZ2UuIEJlZ2lubmVycyBzaG91bGQgdXNlIENvaW5iYXNlLCBCaW5hbmNlLCBvciBLcmFrZW4g4oCUIHRoZXkgYXJlIHJlZ3VsYXRlZCBhbmQg"
++"ZWFzeSB0byB1c2UuJywnU3RlcCAyOiBDcmVhdGUgYW4gYWNjb3VudCBhbmQgdmVyaWZ5IHlvdXIgaWRlbnRpdHkgKEtZQykuIFRoaXMgdXN1YWxseSB0YWtl"
++"cyAxMC0zMCBtaW51dGVzIHdpdGggYSBwaG90byBJRC4nLCdTdGVwIDM6IERlcG9zaXQgbW9uZXkgdmlhIGJhbmsgdHJhbnNmZXIgb3IgY2FyZC4gQmFuayB0"
++"cmFuc2ZlcnMgaGF2ZSBsb3dlciBmZWVzICh1c3VhbGx5IDAtMSUpLCBjYXJkcyBhcmUgZmFzdGVyIGJ1dCBjb3N0IG1vcmUgKDEuNS0zJSkuJ10sdGlwOidT"
++"dGFydCB3aXRoIENvaW5iYXNlIGlmIHlvdSBhcmUgYSBjb21wbGV0ZSBiZWdpbm5lci4gSXQgaGFzIHRoZSBzaW1wbGVzdCBpbnRlcmZhY2UgYW5kIGlzIGF2"
++"YWlsYWJsZSBpbiBtb3N0IGNvdW50cmllcy4nLHRpcENvbG9yOicjMDBlOGEwJ30sCiAge2ljb246JzAzJyx0aXRsZTonTWFraW5nIFlvdXIgRmlyc3QgSW52"
++"ZXN0bWVudCcsY29sb3I6JyM5OTQ1ZmYnLGNvbnRlbnQ6WydOZXZlciBpbnZlc3QgbW9yZSB0aGFuIHlvdSBjYW4gYWZmb3JkIHRvIGxvc2UuIENyeXB0byBp"
++"cyBoaWdobHkgdm9sYXRpbGUg4oCUIHByaWNlcyBjYW4gZHJvcCA1MCUgb3IgbW9yZSBpbiBkYXlzLicsJ1RoZSBzYWZlc3Qgc3RyYXRlZ3kgZm9yIGJlZ2lu"
++"bmVyczogRG9sbGFyLUNvc3QgQXZlcmFnaW5nIChEQ0EpLiBJbnZlc3QgYSBmaXhlZCBhbW91bnQgd2Vla2x5IG9yIG1vbnRobHkgcmVnYXJkbGVzcyBvZiBw"
++"cmljZS4nLCdFeGFtcGxlOiBJbnZlc3QgJDUwIGV2ZXJ5IE1vbmRheSBpbnRvIEJpdGNvaW4uIE92ZXIgdGltZSB5b3UgYnV5IG1vcmUgd2hlbiBwcmljZXMg"
++"YXJlIGxvdyBhbmQgbGVzcyB3aGVuIGhpZ2gsIHJlZHVjaW5nIHJpc2suJ10sdGlwOidNb3N0IGV4cGVydHMgc3VnZ2VzdCBrZWVwaW5nIGNyeXB0byB0byA1"
++"LTEwJSBvZiB5b3VyIHRvdGFsIGludmVzdG1lbnQgcG9ydGZvbGlvIGFzIGEgc3RhcnRpbmcgcG9pbnQuJyx0aXBDb2xvcjonIzk5NDVmZid9LAogIHtpY29u"
++"OicwNCcsdGl0bGU6J1JlYWRpbmcgdGhlIE1hcmtldCcsY29sb3I6JyNmNWE2MjMnLGNvbnRlbnQ6WycyNGggQ2hhbmdlIHNob3dzIGhvdyBtdWNoIHRoZSBw"
++"cmljZSBtb3ZlZCBpbiB0aGUgbGFzdCAyNCBob3Vycy4gQSArNSUgbWVhbnMgcHJpY2Ugcm9zZSA1JSwgYSAtNSUgbWVhbnMgaXQgZHJvcHBlZCA1JS4nLCdN"
++"YXJrZXQgQ2FwID0gUHJpY2UgeCBUb3RhbCBDb2lucyBpbiBjaXJjdWxhdGlvbi4gSGlnaGVyIG1hcmtldCBjYXAgbWVhbnMgbW9yZSBzdGFibGUgY29pbi4g"
++"Qml0Y29pbiBoYXMgdGhlIGhpZ2hlc3QgYXQgb3ZlciAkMSB0cmlsbGlvbi4nLCdWb2x1bWUgdGVsbHMgeW91IGhvdyBtdWNoIHdhcyB0cmFkZWQuIEhpZ2gg"
++"dm9sdW1lIG1lYW5zIHN0cm9uZyBpbnRlcmVzdC4gTG93IHZvbHVtZSBtZWFucyBmZXdlciBidXllcnMgYW5kIHNlbGxlcnMuJ10sdGlwOidUaGUgQ1JZUFRF"
++"WCB0cmFja2VyIGFib3ZlIHNob3dzIGFsbCB0aGVzZSBtZXRyaWNzIGxpdmUuIFVzZSB0aGUgMjRoICUgY29sdW1uIHRvIHNwb3QgYmlnIG1vdmVycy4nLHRp"
++"cENvbG9yOicjZjVhNjIzJ30sCiAge2ljb246JzA1Jyx0aXRsZTonV2hlcmUgdG8gU2VsbCcsY29sb3I6JyNmZjNkNmUnLGNvbnRlbnQ6WydZb3Ugc2VsbCBv"
++"biB0aGUgc2FtZSBleGNoYW5nZSB3aGVyZSB5b3UgYm91Z2h0LiBHbyB0byB5b3VyIGhvbGRpbmdzLCBjbGljayBTZWxsLCBlbnRlciB0aGUgYW1vdW50LCBh"
++"bmQgY29uZmlybS4nLCdTZXQgYSB0YXJnZXQgcHJpY2UgYmVmb3JlIHlvdSBidXkuIEV4YW1wbGU6IEkgd2lsbCBzZWxsIDUwJSBvZiBteSBCVEMgaWYgaXQg"
++"cmVhY2hlcyArMzAlIHByb2ZpdC4gU3RpY2sgdG8geW91ciBwbGFuLicsJ0F2b2lkIHBhbmljIHNlbGxpbmcgZHVyaW5nIGRpcHMuIENyeXB0byBhbHdheXMg"
++"ZHJvcHMgcGVyaW9kaWNhbGx5LiBTZWxsaW5nIGluIGZlYXIgdXN1YWxseSBtZWFucyBzZWxsaW5nIGF0IHRoZSB3b3JzdCB0aW1lLiddLHRpcDonVGFrZSBw"
++"cm9maXRzIGluIHN0YWdlcy4gU2VsbCAyNSUgYXQgKzMwJSwgYW5vdGhlciAyNSUgYXQgKzYwJS4gVGhpcyB3YXkgeW91IGxvY2sgaW4gZ2FpbnMgd2l0aG91"
++"dCBtaXNzaW5nIGZ1cnRoZXIgdXBzaWRlLicsdGlwQ29sb3I6JyNmZjNkNmUnfSwKICB7aWNvbjonMDYnLHRpdGxlOidLZWVwaW5nIFlvdXIgQ3J5cHRvIFNh"
++"ZmUnLGNvbG9yOicjMDBlOGEwJyxjb250ZW50OlsnRXhjaGFuZ2Ugd2FsbGV0cyBhcmUgZmluZSBmb3IgYmVnaW5uZXJzLCBidXQgZm9yIGxhcmdlIGFtb3Vu"
++"dHMgdXNlIGEgaGFyZHdhcmUgd2FsbGV0IGxpa2UgTGVkZ2VyIG9yIFRyZXpvci4nLCdOZXZlciBzaGFyZSB5b3VyIHNlZWQgcGhyYXNlICgxMi0yNCByZWNv"
++"dmVyeSB3b3Jkcykgd2l0aCBhbnlvbmUuIEFueW9uZSB3aXRoIGl0IGNhbiBzdGVhbCBhbGwgeW91ciBjcnlwdG8gaW5zdGFudGx5LicsJ0VuYWJsZSAyLWZh"
++"Y3RvciBhdXRoZW50aWNhdGlvbiAoMkZBKSBvbiB5b3VyIGV4Y2hhbmdlIGFjY291bnQuIFVzZSBhbiBhdXRoZW50aWNhdG9yIGFwcCwgbm90IFNNUywgZm9y"
++"IG1heGltdW0gc2VjdXJpdHkuJ10sdGlwOidOb3QgeW91ciBrZXlzLCBub3QgeW91ciBjb2lucy4gSWYgeW91ciBjcnlwdG8gc3RheXMgb24gYW4gZXhjaGFu"
++"Z2UgYW5kIGl0IGdldHMgaGFja2VkLCB5b3UgY291bGQgbG9zZSBldmVyeXRoaW5nLicsdGlwQ29sb3I6JyNmNWE2MjMnfSwKICB7aWNvbjonMDcnLHRpdGxl"
++"OidUYXhlcyAmIE5leHQgU3RlcHMnLGNvbG9yOicjNGRhN2Q4Jyxjb250ZW50OlsnSW4gbW9zdCBjb3VudHJpZXMsIHNlbGxpbmcgY3J5cHRvIGZvciBwcm9m"
++"aXQgaXMgYSB0YXhhYmxlIGV2ZW50LiBLZWVwIHJlY29yZHMgb2YgZXZlcnkgYnV5IGFuZCBzZWxsIHdpdGggZGF0ZXMgYW5kIHByaWNlcy4nLCdUb29scyBs"
++"aWtlIEtvaW5seSBvciBDb2luVHJhY2tlciBhdXRvbWF0aWNhbGx5IGNhbGN1bGF0ZSB5b3VyIGNyeXB0byB0YXhlcyBmcm9tIGV4Y2hhbmdlIGhpc3Rvcnku"
++"JywnQ29udGludWUgbGVhcm5pbmc6IGZvbGxvdyBDb2luRGVzaywgRGVjcnlwdCwgb3IgTWVzc2FyaSBmb3IgY3J5cHRvIG5ld3MuIE5ldmVyIGludmVzdCBi"
++"YXNlZCBvbiBzb2NpYWwgbWVkaWEgaHlwZSBhbG9uZS4nXSx0aXA6J1RoZSBiZXN0IGludmVzdG9ycyBpbiBjcnlwdG8gYXJlIHBhdGllbnQsIGRpc2NpcGxp"
++"bmVkLCBhbmQgZG8gdGhlaXIgb3duIHJlc2VhcmNoLiBTdGFydCBzbWFsbCwgbGVhcm4gY29uc3RhbnRseS4nLHRpcENvbG9yOicjMDBlOGEwJ30KXTsKdmFy"
++"IHR1dFN0ZXA9MDsKZnVuY3Rpb24gcmVuZGVyVHV0b3JpYWwoKXsKICB2YXIgc3RlcD1UVVRPUklBTF9TVEVQU1t0dXRTdGVwXTsKICB2YXIgdG90YWw9VFVU"
++"T1JJQUxfU1RFUFMubGVuZ3RoOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd0dXRQcm9ncmVzcycpLnRleHRDb250ZW50PSdTdGVwICcrKHR1dFN0ZXAr"
++"MSkrJyBvZiAnK3RvdGFsOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd0dXRCYXInKS5zdHlsZS53aWR0aD1NYXRoLnJvdW5kKCgodHV0U3RlcCsxKS90"
++"b3RhbCkqMTAwKSsnJSc7CiAgdmFyIGRvdHM9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3R1dERvdHMnKTsgZG90cy5pbm5lckhUTUw9Jyc7CiAgVFVUT1JJ"
++"QUxfU1RFUFMuZm9yRWFjaChmdW5jdGlvbihfLGkpewogICAgdmFyIGQ9ZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7CiAgICBkLnN0eWxlLmNzc1Rl"
++"eHQ9J3dpZHRoOjdweDtoZWlnaHQ6N3B4O2JvcmRlci1yYWRpdXM6NTAlO3RyYW5zaXRpb246YWxsIC4zcztjdXJzb3I6cG9pbnRlcjsnKyhpPT09dHV0U3Rl"
++"cD8nYmFja2dyb3VuZDonK3N0ZXAuY29sb3IrJzt0cmFuc2Zvcm06c2NhbGUoMS4zKSc6J2JhY2tncm91bmQ6dmFyKC0tYm9yZGVyKScpOwogICAgZC5vbmNs"
++"aWNrPWZ1bmN0aW9uKCl7dHV0U3RlcD1pO3JlbmRlclR1dG9yaWFsKCk7fTsKICAgIGRvdHMuYXBwZW5kQ2hpbGQoZCk7CiAgfSk7CiAgZG9jdW1lbnQuZ2V0"
++"RWxlbWVudEJ5SWQoJ3R1dFByZXYnKS5zdHlsZS5vcGFjaXR5PXR1dFN0ZXA9PT0wPycwLjMnOicxJzsKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgndHV0"
++"TmV4dCcpLnRleHRDb250ZW50PXR1dFN0ZXA9PT10b3RhbC0xPydSRVNUQVJUJzonTkVYVCBcdTIxOTInOwogIHZhciBjb250ZW50PWRvY3VtZW50LmdldEVs"
++"ZW1lbnRCeUlkKCd0dXRDb250ZW50Jyk7CiAgY29udGVudC5zdHlsZS5vcGFjaXR5PScwJzsKICBzZXRUaW1lb3V0KGZ1bmN0aW9uKCl7CiAgICBjb250ZW50"
++"LmlubmVySFRNTD0nJzsKICAgIHZhciBoZHI9ZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7IGhkci5zdHlsZS5jc3NUZXh0PSdkaXNwbGF5OmZsZXg7"
++"YWxpZ24taXRlbXM6Y2VudGVyO2dhcDoxNHB4JzsKICAgIGhkci5pbm5lckhUTUw9JzxkaXYgc3R5bGU9IndpZHRoOjQ0cHg7aGVpZ2h0OjQ0cHg7Ym9yZGVy"
++"LXJhZGl1czoxMHB4O2JhY2tncm91bmQ6JytzdGVwLmNvbG9yKycyMjtib3JkZXI6MXB4IHNvbGlkICcrc3RlcC5jb2xvcisnNDQ7ZGlzcGxheTpmbGV4O2Fs"
++"aWduLWl0ZW1zOmNlbnRlcjtqdXN0aWZ5LWNvbnRlbnQ6Y2VudGVyO2ZvbnQtZmFtaWx5OlwnU3BhY2UgTW9ub1wnLG1vbm9zcGFjZTtmb250LXNpemU6Ljc1"
++"cmVtO2ZvbnQtd2VpZ2h0OjcwMDtjb2xvcjonK3N0ZXAuY29sb3IrJztmbGV4LXNocmluazowIj4nK3N0ZXAuaWNvbisnPC9kaXY+JwogICAgICArJzxkaXYg"
++"c3R5bGU9ImZvbnQtZmFtaWx5OlwnQmViYXMgTmV1ZVwnLHNhbnMtc2VyaWY7Zm9udC1zaXplOjEuNHJlbTtsZXR0ZXItc3BhY2luZzoycHg7Y29sb3I6Jytz"
++"dGVwLmNvbG9yKyciPicrc3RlcC50aXRsZSsnPC9kaXY+JzsKICAgIGNvbnRlbnQuYXBwZW5kQ2hpbGQoaGRyKTsKICAgIHZhciBsaXN0PWRvY3VtZW50LmNy"
++"ZWF0ZUVsZW1lbnQoJ2RpdicpOyBsaXN0LnN0eWxlLmNzc1RleHQ9J2Rpc3BsYXk6ZmxleDtmbGV4LWRpcmVjdGlvbjpjb2x1bW47Z2FwOjEwcHgnOwogICAg"
++"c3RlcC5jb250ZW50LmZvckVhY2goZnVuY3Rpb24odGV4dCl7CiAgICAgIHZhciByb3c9ZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7IHJvdy5zdHls"
++"ZS5jc3NUZXh0PSdkaXNwbGF5OmZsZXg7Z2FwOjEwcHg7YWxpZ24taXRlbXM6ZmxleC1zdGFydCc7CiAgICAgIHJvdy5pbm5lckhUTUw9JzxkaXYgc3R5bGU9"
++"IndpZHRoOjVweDtoZWlnaHQ6NXB4O2JvcmRlci1yYWRpdXM6NTAlO2JhY2tncm91bmQ6JytzdGVwLmNvbG9yKyc7bWFyZ2luLXRvcDo3cHg7ZmxleC1zaHJp"
++"bms6MCI+PC9kaXY+JwogICAgICAgICsnPGRpdiBzdHlsZT0iZm9udC1zaXplOi44NXJlbTtjb2xvcjp2YXIoLS1tdXRlZDIpO2xpbmUtaGVpZ2h0OjEuNjUi"
++"PicrdGV4dCsnPC9kaXY+JzsKICAgICAgbGlzdC5hcHBlbmRDaGlsZChyb3cpOwogICAgfSk7CiAgICBjb250ZW50LmFwcGVuZENoaWxkKGxpc3QpOwogICAg"
++"dmFyIHRpcD1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTsKICAgIHRpcC5zdHlsZS5jc3NUZXh0PSdiYWNrZ3JvdW5kOicrc3RlcC50aXBDb2xvcisn"
++"MGQ7Ym9yZGVyOjFweCBzb2xpZCAnK3N0ZXAudGlwQ29sb3IrJzI4O2JvcmRlci1yYWRpdXM6MTBweDtwYWRkaW5nOjEycHggMTZweDtkaXNwbGF5OmZsZXg7"
++"Z2FwOjEwcHg7YWxpZ24taXRlbXM6ZmxleC1zdGFydDttYXJnaW4tdG9wOjRweCc7CiAgICB0aXAuaW5uZXJIVE1MPSc8ZGl2IHN0eWxlPSJmb250LXNpemU6"
++"MXJlbTtmbGV4LXNocmluazowIj5cdTI2YTE8L2Rpdj48ZGl2IHN0eWxlPSJmb250LXNpemU6Ljc4cmVtO2NvbG9yOicrc3RlcC50aXBDb2xvcisnO2xpbmUt"
++"aGVpZ2h0OjEuNiI+PGI+UHJvIFRpcDo8L2I+ICcrc3RlcC50aXArJzwvZGl2Pic7CiAgICBjb250ZW50LmFwcGVuZENoaWxkKHRpcCk7CiAgICBjb250ZW50"
++"LnN0eWxlLm9wYWNpdHk9JzEnOyBjb250ZW50LnN0eWxlLnRyYW5zaXRpb249J29wYWNpdHkgLjNzJzsKICB9LDE1MCk7Cn0KCi8vIOKUgOKUgCBQUk8gVU5M"
++"T0NLIOKUgOKUgApmdW5jdGlvbiB1cGRhdGVQcm9VSSgpewogIHZhciBiYWRnZT1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgncHJvQmFkZ2VIZWFkZXInKTsK"
++"ICBpZihiYWRnZSkgYmFkZ2Uuc3R5bGUuZGlzcGxheT1pc1BybygpPydmbGV4Jzonbm9uZSc7CiAgdmFyIHByb1NlY3Rpb25zPWRvY3VtZW50LnF1ZXJ5U2Vs"
++"ZWN0b3JBbGwoJy5wcm8tc2VjdGlvbicpOwogIHByb1NlY3Rpb25zLmZvckVhY2goZnVuY3Rpb24ocyl7IHMuc3R5bGUuZGlzcGxheT1pc1BybygpPydibG9j"
++"ayc6J25vbmUnOyB9KTsKICB2YXIgcHJvQmx1cnM9ZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnLnByby1ibHVyJyk7CiAgcHJvQmx1cnMuZm9yRWFjaChm"
++"dW5jdGlvbihzKXsgcy5zdHlsZS5kaXNwbGF5PWlzUHJvKCk/J25vbmUnOidmbGV4JzsgfSk7Cn0KCi8vIOKUgOKUgCBXSU5ET1cgRVhQT1JUUyDilIDilIAK"
++"d2luZG93LmFkZEhvbGRpbmc9YWRkSG9sZGluZzsKd2luZG93LnJlZnJlc2hQcm89ZnVuY3Rpb24oKXt1cGRhdGVQcm9VSSgpO2lmKGlzUHJvKCkpe3JlbmRl"
++"ckFuYWx5dGljcygpO3JlbmRlckFsZXJ0cygpO2ZldGNoUHJpY2VzKCk7fX07CndpbmRvdy5yZW1vdmVIb2xkaW5nPXJlbW92ZUhvbGRpbmc7CndpbmRvdy5m"
++"ZXRjaFByaWNlcz1mZXRjaFByaWNlczsKd2luZG93LnR1dE5hdj1mdW5jdGlvbihkaXIpeyB2YXIgdD1UVVRPUklBTF9TVEVQUy5sZW5ndGg7IHR1dFN0ZXA9"
++"KHR1dFN0ZXArZGlyK3QpJXQ7IHJlbmRlclR1dG9yaWFsKCk7IH07CndpbmRvdy5hZGRBbGVydD1hZGRBbGVydDsKd2luZG93LnJlbW92ZUFsZXJ0PXJlbW92"
++"ZUFsZXJ0Owp3aW5kb3cudXBkYXRlUHJvVUk9dXBkYXRlUHJvVUk7CndpbmRvdy5yZW5kZXJBbmFseXRpY3M9cmVuZGVyQW5hbHl0aWNzOwp3aW5kb3cucmVu"
++"ZGVyQWxlcnRzPXJlbmRlckFsZXJ0czsKCi8vIOKUgOKUgCBJTklUIOKUgOKUgApmZXRjaFByaWNlcygpOwpmZXRjaEZvcmV4KCk7CnNldEludGVydmFsKGZl"
++"dGNoUHJpY2VzLDEwMDAwKTsKc2V0SW50ZXJ2YWwoZmV0Y2hGb3JleCw2MDAwMCk7CnJlbmRlclR1dG9yaWFsKCk7CnVwZGF0ZVByb1VJKCk7Cg==";
+eval(atob(_x));
+
+// ── PRICE FETCH OVERRIDE — uses Binance (no key, no CORS, no rate limit) ──
+(function(){
+
+  // Map coin IDs to Binance symbols
+  var BINANCE_MAP = {
+    bitcoin:       'BTCUSDT',
+    ethereum:      'ETHUSDT',
+    binancecoin:   'BNBUSDT',
+    solana:        'SOLUSDT',
+    ripple:        'XRPUSDT',
+    cardano:       'ADAUSDT',
+    dogecoin:      'DOGEUSDT',
+    'avalanche-2': 'AVAXUSDT',
+    polkadot:      'DOTUSDT',
+    chainlink:     'LINKUSDT',
+    uniswap:       'UNIUSDT',
+    litecoin:      'LTCUSDT',
+    stellar:       'XLMUSDT',
+    monero:        'XMRUSDT',
+    cosmos:        'ATOMUSDT',
+    near:          'NEARUSDT'
+  };
+
+  // Fallback prices (May 2026 approximate) — only used if Binance fails
+  var MOCK_UPDATED = {
+    bitcoin:      {usd:103200, usd_24h_change:1.82,  usd_market_cap:2.04e12},
+    ethereum:     {usd:2480,   usd_24h_change:-0.94, usd_market_cap:298e9},
+    binancecoin:  {usd:648,    usd_24h_change:0.61,  usd_market_cap:91e9},
+    solana:       {usd:168,    usd_24h_change:2.30,  usd_market_cap:77e9},
+    ripple:       {usd:2.34,   usd_24h_change:-1.10, usd_market_cap:134e9},
+    cardano:      {usd:0.74,   usd_24h_change:0.88,  usd_market_cap:26e9},
+    dogecoin:     {usd:0.198,  usd_24h_change:-0.55, usd_market_cap:29e9},
+    'avalanche-2':{usd:23.4,   usd_24h_change:1.45,  usd_market_cap:9.8e9},
+    polkadot:     {usd:4.82,   usd_24h_change:0.72,  usd_market_cap:7.2e9},
+    chainlink:    {usd:15.60,  usd_24h_change:-0.38, usd_market_cap:9.7e9},
+    uniswap:      {usd:6.84,   usd_24h_change:2.10,  usd_market_cap:4.1e9},
+    litecoin:     {usd:92.10,  usd_24h_change:0.44,  usd_market_cap:6.9e9},
+    stellar:      {usd:0.292,  usd_24h_change:-0.80, usd_market_cap:8.9e9},
+    monero:       {usd:318,    usd_24h_change:1.25,  usd_market_cap:5.9e9},
+    cosmos:       {usd:4.90,   usd_24h_change:0.95,  usd_market_cap:1.9e9},
+    near:         {usd:2.98,   usd_24h_change:3.10,  usd_market_cap:3.6e9}
+  };
+
+  function applyAndRender(data, label){
+    prices = data;
+    var upd = document.getElementById('lastUpdate');
+    if(upd) upd.textContent = label;
+    if(typeof renderCoins==='function') renderCoins();
+    if(typeof renderTicker==='function') renderTicker();
+    if(typeof renderPortfolio==='function') renderPortfolio();
+    if(typeof isPro==='function' && isPro()){
+      if(typeof checkAlerts==='function') checkAlerts();
+      if(typeof renderAlerts==='function') renderAlerts();
+      if(typeof renderAnalytics==='function') renderAnalytics();
+    }
+  }
+
+  window.fetchPrices = async function(){
+    var coins = (typeof getCoins==='function') ? getCoins() : [];
+    // Build list of Binance symbols we need
+    var symbols = coins.map(function(c){ return BINANCE_MAP[c.id]; }).filter(Boolean);
+
+    if(!symbols.length){ applyAndRender(MOCK_UPDATED,'Demo'); return; }
+
+    // Binance GET /api/v3/ticker/24hr — fetch all tickers in one call (no auth, no CORS issues)
+    var url = 'https://api.binance.com/api/v3/ticker/24hr';
+
+    try{
+      var ctrl = new AbortController();
+      var tid = setTimeout(function(){ctrl.abort();}, 8000);
+      var r = await fetch(url, {signal: ctrl.signal});
+      clearTimeout(tid);
+
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      var all = await r.json(); // array of all ~2000 tickers
+
+      // Index by symbol for fast lookup
+      var bySymbol = {};
+      all.forEach(function(t){ bySymbol[t.symbol] = t; });
+
+      // Build prices object in the same shape the rest of the app expects
+      var built = {};
+      coins.forEach(function(c){
+        var sym = BINANCE_MAP[c.id];
+        if(!sym || !bySymbol[sym]) return;
+        var t = bySymbol[sym];
+        built[c.id] = {
+          usd: parseFloat(t.lastPrice),
+          usd_24h_change: parseFloat(t.priceChangePercent),
+          usd_market_cap: parseFloat(t.quoteVolume) // volume as proxy; no mcap on Binance
+        };
+      });
+
+      if(Object.keys(built).length === 0) throw new Error('No matching tickers');
+
+      applyAndRender(built, 'Updated '+new Date().toLocaleTimeString());
+
+    } catch(e){
+      // Fallback: try Binance individual price endpoint for just the needed symbols
+      try{
+        var results = {};
+        await Promise.all(symbols.map(async function(sym){
+          var coinId = Object.keys(BINANCE_MAP).find(function(k){return BINANCE_MAP[k]===sym;});
+          try{
+            var ctrl2 = new AbortController();
+            var tid2 = setTimeout(function(){ctrl2.abort();}, 6000);
+            var r2 = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol='+sym, {signal:ctrl2.signal});
+            clearTimeout(tid2);
+            if(r2.ok){
+              var t2 = await r2.json();
+              results[coinId] = {
+                usd: parseFloat(t2.lastPrice),
+                usd_24h_change: parseFloat(t2.priceChangePercent),
+                usd_market_cap: parseFloat(t2.quoteVolume)
+              };
+            }
+          }catch(e2){}
+        }));
+        if(Object.keys(results).length > 0){
+          applyAndRender(results, 'Updated '+new Date().toLocaleTimeString());
+          return;
+        }
+      }catch(e3){}
+
+      // All failed — show updated mock
+      applyAndRender(MOCK_UPDATED, '⚠ Offline — approx. prices shown');
+    }
+  };
+
+  // Start immediately, refresh every 15s (Binance can handle it)
+  window.fetchPrices();
+  clearInterval(window._priceInterval);
+  window._priceInterval = setInterval(window.fetchPrices, 15000);
+})();
+})();
+</script>
+<!-- HOTBAR -->
+<nav id="hotbar">
+  <button class="hb-btn active" onclick="hotbarNav('market')" id="hb-market">
+    <span class="hb-icon">📈</span>
+    <span class="hb-label">Market</span>
+  </button>
+  <button class="hb-btn" onclick="hotbarNav('portfolio')" id="hb-portfolio">
+    <span class="hb-icon">💼</span>
+    <span class="hb-label">Portfolio</span>
+  </button>
+  <button class="hb-btn" onclick="hotbarNav('alerts')" id="hb-alerts">
+    <span class="hb-icon">🔔</span>
+    <span class="hb-label">Alerts</span>
+  </button>
+  <button class="hb-btn" onclick="hotbarNav('tutorial')" id="hb-tutorial">
+    <span class="hb-icon">🎓</span>
+    <span class="hb-label">Learn</span>
+  </button>
+  <button class="hb-btn" onclick="window.openContact()" id="hb-contact">
+    <span class="hb-icon">✉️</span>
+    <span class="hb-label">Contact</span>
+  </button>
+</nav>
+
+<style>
+#hotbar{
+  position:fixed;bottom:0;left:0;right:0;z-index:9000;
+  background:rgba(12,16,24,.95);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-top:1px solid var(--border);
+  display:flex;align-items:stretch;
+  padding:0 0 env(safe-area-inset-bottom,0);
+  box-shadow:0 -8px 32px rgba(0,0,0,.45);
+}
+.hb-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;padding:10px 2px 12px;
+  background:transparent;border:none;cursor:pointer;
+  color:var(--muted);font-family:'Space Mono',monospace;
+  transition:color .2s;
+  -webkit-tap-highlight-color:transparent;
+  position:relative;
+  min-height:60px;
+  touch-action:manipulation;
+}
+.hb-btn::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:0;height:2px;background:var(--accent);border-radius:0 0 3px 3px;
+  transition:width .25s ease;
+}
+.hb-btn.active::before{width:36px;}
+.hb-btn.active{color:var(--accent);}
+.hb-btn:hover{color:var(--text);}
+.hb-icon{font-size:1.2rem;line-height:1;}
+.hb-label{font-size:.5rem;letter-spacing:1.2px;text-transform:uppercase;}
+@media(max-width:380px){
+  .hb-label{font-size:.45rem;letter-spacing:.8px;}
+  .hb-icon{font-size:1.05rem;}
+}
+</style>
+
+<script>
+var _hbSections=['market','portfolio','alerts','tutorial'];
+
+function hotbarNav(id){
+  var el=document.getElementById('section-'+id);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'start'});}
+  _hbSections.forEach(function(s){
+    document.getElementById('hb-'+s).classList.remove('active');
+  });
+  document.getElementById('hb-'+id).classList.add('active');
+}
+
+// Highlight active section on scroll
+(function(){
+  var ticking=false;
+  window.addEventListener('scroll',function(){
+    if(!ticking){requestAnimationFrame(function(){
+      var best='market', bestDist=Infinity;
+      _hbSections.forEach(function(s){
+        var el=document.getElementById('section-'+s);
+        if(el){
+          var dist=Math.abs(el.getBoundingClientRect().top-80);
+          if(dist<bestDist){bestDist=dist;best=s;}
+        }
+      });
+      _hbSections.forEach(function(s){
+        document.getElementById('hb-'+s).classList.toggle('active',s===best);
+      });
+      ticking=false;
+    });ticking=true;}
+  },{passive:true});
+})();
+
+// ── SWIPE GESTURES for tutorial ──
+(function(){
+  var el=document.getElementById('tutContent');
+  if(!el) return;
+  var startX=0, startY=0;
+  document.addEventListener('touchstart',function(e){
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(!document.getElementById('section-tutorial')) return;
+    var tutEl=document.getElementById('section-tutorial');
+    var rect=tutEl.getBoundingClientRect();
+    // Only trigger if tutorial is roughly in view
+    if(rect.bottom < -200 || rect.top > window.innerHeight+200) return;
+    var dx=e.changedTouches[0].clientX - startX;
+    var dy=e.changedTouches[0].clientY - startY;
+    if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50){
+      if(window.tutNav) window.tutNav(dx < 0 ? 1 : -1);
+    }
+  },{passive:true});
+})();
+
+// ── KEYBOARD ARROW KEYS for tutorial ──
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT') return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){if(window.tutNav) window.tutNav(1);}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){if(window.tutNav) window.tutNav(-1);}
+});
+
+// ── THEME TOGGLE ──
+(function(){
+  var light = true;
+  try{ light = localStorage.getItem('cryptex_theme')!=='dark'; }catch(e){}
+  function applyTheme(l){
+    light = l;
+    document.body.classList.toggle('light', l);
+    document.getElementById('themeToggleBtn').textContent = l ? '🌙' : '☀️';
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.setAttribute('content', l ? '#f0f4f8' : '#06080d');
+    try{ localStorage.setItem('cryptex_theme', l?'light':'dark'); }catch(e){}
+  }
+  window.toggleTheme = function(){ applyTheme(!light); };
+  applyTheme(light);
+})();
+
+// ── RESTORE SESSION ──
+(function(){
+  try{
+    var session = JSON.parse(localStorage.getItem('cryptex_session')||'null');
+    if(session && session.email){
+      window._fbUser = {displayName: session.name, email: session.email};
+    }
+  }catch(e){}
+})();
+
+// ── ACCOUNT MODAL ──
+window.openAccountModal = function(){
+  var m = document.getElementById('accountModal');
+  m.style.display = 'flex';
+  window.accRefreshLoggedIn();
+};
+window.closeAccountModal = function(){
+  document.getElementById('accountModal').style.display = 'none';
+};
+document.getElementById('accountModal').addEventListener('click', function(e){
+  if(e.target === this) window.closeAccountModal();
+});
+
+// Swipe down to close
+(function(){
+  var sheet = document.getElementById('accountSheet');
+  var sy=0, drag=false;
+  sheet.addEventListener('touchstart',function(e){
+    if(sheet.querySelector('[style*="overflow-y"]') && sheet.querySelector('[style*="overflow-y"]').scrollTop>0) return;
+    sy=e.touches[0].clientY; drag=true;
+  },{passive:true});
+  sheet.addEventListener('touchmove',function(e){
+    if(!drag) return;
+    var dy=e.touches[0].clientY-sy;
+    if(dy>0) sheet.style.transform='translateY('+dy+'px)';
+  },{passive:true});
+  sheet.addEventListener('touchend',function(e){
+    if(!drag) return; drag=false;
+    var dy=e.changedTouches[0].clientY-sy;
+    sheet.style.transform='';
+    if(dy>80) window.closeAccountModal();
+  });
+})();
+
+window.accShowTab = function(tab){
+  var isLogin = tab==='login';
+  document.getElementById('accFormLogin').style.display  = isLogin ? 'flex' : 'none';
+  document.getElementById('accFormSignup').style.display = isLogin ? 'none' : 'flex';
+  document.getElementById('accTabLogin').style.background  = isLogin ? 'rgba(0,180,216,.12)' : 'var(--surface2)';
+  document.getElementById('accTabLogin').style.borderColor = isLogin ? 'rgba(0,180,216,.3)' : 'var(--border)';
+  document.getElementById('accTabLogin').style.color       = isLogin ? 'var(--blue)' : 'var(--muted2)';
+  document.getElementById('accTabSignup').style.background  = !isLogin ? 'rgba(0,232,160,.1)' : 'var(--surface2)';
+  document.getElementById('accTabSignup').style.borderColor = !isLogin ? 'rgba(0,232,160,.3)' : 'var(--border)';
+  document.getElementById('accTabSignup').style.color       = !isLogin ? 'var(--accent)' : 'var(--muted2)';
+  document.getElementById('accError').style.display = 'none';
+};
+
+function accSetError(msg){
+  var el = document.getElementById('accError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function accSetLoading(btn, loading){
+  btn.disabled = loading;
+  btn.style.opacity = loading ? '.6' : '1';
+}
+
+window.accLogin = function(){
+  var email = document.getElementById('accLoginEmail').value.trim();
+  var pw    = document.getElementById('accLoginPw').value;
+  var btn   = document.querySelector('#accFormLogin button');
+  if(!email||!pw){ accSetError('Please fill in all fields.'); return; }
+  accSetLoading(btn, true);
+  document.getElementById('accError').style.display = 'none';
+
+  var users = {};
+  try{ users = JSON.parse(localStorage.getItem('cryptex_users')||'{}'); }catch(e){}
+  var user = users[email];
+  if(!user){ accSetError('No account found with that email.'); accSetLoading(btn,false); return; }
+  if(user.pw !== pw){ accSetError('Wrong password.'); accSetLoading(btn,false); return; }
+
+  try{ localStorage.setItem('cryptex_session', JSON.stringify({name:user.name, email:email})); }catch(e){}
+  window._fbUser = {displayName:user.name, email:email};
+  if(user.isPro){ try{ localStorage.setItem('cryptex_pro','UNLOCKED'); }catch(e){} if(window.refreshPro) window.refreshPro(); }
+  window.renderAccountUI(window._fbUser);
+  window.closeAccountModal();
+  accSetLoading(btn, false);
+};
+
+window.accSignUp = function(){
+  var name  = document.getElementById('accSignupName').value.trim();
+  var email = document.getElementById('accSignupEmail').value.trim();
+  var pw    = document.getElementById('accSignupPw').value;
+  var btn   = document.querySelector('#accFormSignup button');
+  if(!name||!email||!pw){ accSetError('Please fill in all fields.'); return; }
+  if(pw.length<6){ accSetError('Password must be at least 6 characters.'); return; }
+  accSetLoading(btn, true);
+  document.getElementById('accError').style.display = 'none';
+
+  var users = {};
+  try{ users = JSON.parse(localStorage.getItem('cryptex_users')||'{}'); }catch(e){}
+  if(users[email]){ accSetError('That email is already registered. Sign in instead.'); accSetLoading(btn,false); return; }
+
+  users[email] = {name:name, pw:pw, isPro:false};
+  try{ localStorage.setItem('cryptex_users', JSON.stringify(users)); }catch(e){}
+  try{ localStorage.setItem('cryptex_session', JSON.stringify({name:name, email:email})); }catch(e){}
+
+  window._fbUser = {displayName:name, email:email};
+  window.renderAccountUI(window._fbUser);
+  window.closeAccountModal();
+  accSetLoading(btn, false);
+
+  var n=document.createElement('div');
+  n.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:14px 20px;font-family:Space Mono,monospace;font-size:.72rem;color:var(--accent);box-shadow:0 8px 32px rgba(0,232,160,.2);animation:rise .3s ease;white-space:nowrap';
+  n.textContent='✓ Account created! Welcome, '+name+'!';
+  document.body.appendChild(n);
+  setTimeout(function(){n.remove();},3500);
+};
+
+window.accSignOut = function(){
+  try{ localStorage.removeItem('cryptex_session'); localStorage.removeItem('cryptex_pro'); localStorage.removeItem('cryptex_port'); localStorage.removeItem('cryptex_alerts'); }catch(e){}
+  window._fbUser = null;
+  if(typeof portfolio!=='undefined') portfolio=[];
+  if(typeof alerts!=='undefined') alerts=[];
+  if(window.refreshPro) window.refreshPro();
+  if(window.fetchPrices) window.fetchPrices();
+  window.closeAccountModal();
+};
+
+window.accSync = function(){
+  var btn = document.getElementById('accSyncBtn');
+  btn.textContent = '✓ SAVED LOCALLY';
+  btn.style.color = 'var(--accent)';
+  setTimeout(function(){ btn.textContent='☁ SYNC TO CLOUD NOW'; btn.style.color=''; },2000);
+};
+
+window.accRefreshLoggedIn = function(){
+  var user = window._fbUser;
+  document.getElementById('accLoggedOut').style.display = user ? 'none' : 'block';
+  document.getElementById('accLoggedIn').style.display  = user ? 'block' : 'none';
+  if(!user) return;
+
+  var name = user.displayName || user.email.split('@')[0];
+  document.getElementById('accAvatar').textContent      = name.charAt(0).toUpperCase();
+  document.getElementById('accDisplayName').textContent = name;
+  document.getElementById('accDisplayEmail').textContent= user.email;
+
+  var isPro = false;
+  try{ isPro = localStorage.getItem('cryptex_pro')==='UNLOCKED'; }catch(e){}
+  document.getElementById('accProBadge').style.display = isPro ? 'block' : 'none';
+  document.getElementById('accStatStatus').textContent  = isPro ? 'PRO' : 'FREE';
+  document.getElementById('accStatStatus').style.color  = isPro ? 'var(--gold)' : 'var(--muted)';
+
+  var port=[], alts=[];
+  try{ port=JSON.parse(localStorage.getItem('cryptex_port')||'[]'); }catch(e){}
+  try{ alts=JSON.parse(localStorage.getItem('cryptex_alerts')||'[]'); }catch(e){}
+  document.getElementById('accStatHoldings').textContent = port.length;
+  document.getElementById('accStatAlerts').textContent   = alts.length;
+};
+
+window.renderAccountUI = function(user){
+  var btn = document.getElementById('accountBtn');
+  if(btn){
+    btn.textContent = user ? '👤 '+((user.displayName||user.email).split(' ')[0].slice(0,8)) : '👤 ACCOUNT';
+    btn.style.borderColor = user ? 'rgba(0,232,160,.3)' : 'rgba(0,180,216,.3)';
+    btn.style.color       = user ? 'var(--accent)' : 'var(--blue)';
+  }
+};
+
+// Auto-sync whenever localStorage changes (portfolio/alerts saved)
+var _origSavePortfolio = window.savePortfolio;
+window.savePortfolio = function(){
+  if(_origSavePortfolio) _origSavePortfolio();
+  if(window._fbSync) window._fbSync();
+};
+var _origSaveAlerts = window.saveAlerts;
+window.saveAlerts = function(){
+  if(_origSaveAlerts) _origSaveAlerts();
+  if(window._fbSync) window._fbSync();
+};
+
+// Also sync when Pro is unlocked
+var _origCheckPro = window.checkProCode;
+window.checkProCode = async function(){
+  if(_origCheckPro) await _origCheckPro();
+  if(window._fbSync) setTimeout(window._fbSync, 800);
+};
+
+// ── ADMIN GATE ──
+// Change this password to whatever you want
+var ADMIN_PASSWORD = '1204';
+
+window.openAdminGate = function(){
+  document.getElementById('adminGateModal').style.display = 'flex';
+  document.getElementById('adminPwInput').value = '';
+  document.getElementById('adminPwError').style.display = 'none';
+  setTimeout(function(){ document.getElementById('adminPwInput').focus(); }, 100);
+};
+window.closeAdminGate = function(){
+  document.getElementById('adminGateModal').style.display = 'none';
+};
+document.getElementById('adminGateModal').addEventListener('click', function(e){
+  if(e.target === this) window.closeAdminGate();
+});
+window.checkAdminPw = function(){
+  var val = document.getElementById('adminPwInput').value;
+  if(val === ADMIN_PASSWORD){
+    window.closeAdminGate();
+    window.closeProModal();
+    window.openCodeGen();
+  } else {
+    var inp = document.getElementById('adminPwInput');
+    var err = document.getElementById('adminPwError');
+    inp.style.borderColor = 'var(--red)';
+    err.style.display = 'block';
+    inp.animate([{transform:'translateX(0)'},{transform:'translateX(-7px)'},{transform:'translateX(7px)'},{transform:'translateX(0)'}],{duration:280});
+    setTimeout(function(){ inp.style.borderColor = 'var(--border)'; }, 1500);
+  }
+};
+
+// ── BACK TO TOP button ──
+(function(){
+  var btn=document.createElement('button');
+  btn.id='backToTop';
+  btn.innerHTML='&#8593;';
+  btn.setAttribute('aria-label','Back to top');
+  btn.style.cssText='position:fixed;bottom:calc(76px + env(safe-area-inset-bottom,0px));right:16px;z-index:8999;width:38px;height:38px;border-radius:50%;background:rgba(12,16,24,.9);border:1px solid var(--border);color:var(--muted2);font-size:1rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:opacity .25s,border-color .2s,color .2s;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(10px);';
+  btn.onmouseenter=function(){btn.style.borderColor='var(--accent)';btn.style.color='var(--accent)';};
+  btn.onmouseleave=function(){btn.style.borderColor='var(--border)';btn.style.color='var(--muted2)';};
+  btn.onclick=function(){window.scrollTo({top:0,behavior:'smooth'});};
+  document.body.appendChild(btn);
+  var visible=false;
+  window.addEventListener('scroll',function(){
+    var show=window.scrollY>320;
+    if(show!==visible){
+      visible=show;
+      btn.style.display=show?'flex':'none';
+      btn.style.opacity=show?'1':'0';
+    }
+  },{passive:true});
+})();
+</script>
+</body>
+</html>
